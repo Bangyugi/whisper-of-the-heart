@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#FA7F80" />
+  <title>Tặng Cậu — Một Lời Nhắn Từ Trái Tim 💌</title>
+
+  <!-- Google Fonts hỗ trợ đầy đủ Tiếng Việt (Mục 5.2 Tài liệu đặc tả) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Mali:ital,wght@0,500;0,600;0,700;1,500&family=Nunito:wght@600;700;800;900&family=Patrick+Hand&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN & GSAP Animation Engine -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="desktop-shell">
+    <!-- Khung hiển thị chuẩn Mobile 9:16 (max-w-[430px] mx-auto h-[100dvh] overflow-hidden relative) -->
+    <main id="app-viewport" class="app-viewport">
+
+      <!-- ====================================================================
+           LAYER 1 (z-10): BACKGROUND SKY GRADIENTS
+           ==================================================================== -->
+      <div id="sky-selection" class="sky-layer sky-selection" style="opacity: 1;"></div>
+      <div id="sky-accept-1" class="sky-layer sky-accept-1" style="opacity: 0;"></div>
+      <div id="sky-accept-dawn" class="sky-layer sky-accept-dawn" style="opacity: 0;"></div>
+      <div id="sky-accept-2" class="sky-layer sky-accept-2" style="opacity: 0;"></div>
+      <div id="sky-reject-1" class="sky-layer sky-reject-1" style="opacity: 0;"></div>
+
+      <!-- ====================================================================
+           LAYER 2 (z-20): ATMOSPHERE, SUN GLOW & PAPER-CUT CLOUDS
+           ==================================================================== -->
+      <div class="atmosphere-layer">
+        <!-- Tia nắng mặt trời xoay nhẹ (Tỏa rộng dần khi mặt trời mọc) -->
+        <div id="sunburst-rays" class="sunburst-rays"></div>
+
+        <!-- Vầng sáng hào quang mặt trời ấm áp sau đồi -->
+        <div id="sun-glow-dome" class="sun-glow-dome"></div>
+
+        <!-- Quả cầu Mặt Trời vàng ấm thực sự nhô dần lên từ sau đồi -->
+        <div id="rising-sun-orb" class="rising-sun-orb" style="opacity: 0;"></div>
+
+        <!-- Cụm mây trắng cắt lớp hai bên sườn trên (Upper Side Clouds) -->
+        <svg class="paper-cloud cloud-drift-slow left-[-12px] top-[15%] w-[128px]" viewBox="0 0 150 95" fill="none">
+          <path d="M0 20 C22 18 36 32 38 45 C54 38 72 46 76 62 C94 58 110 68 110 82 C110 88 104 90 95 90 L0 90 Z" fill="#FFFDFB"/>
+          <path d="M0 72 Q45 68 106 82 L98 90 L0 90 Z" fill="#FDE2DA" opacity="0.75"/>
+        </svg>
+
+        <svg class="paper-cloud cloud-drift-reverse right-[-10px] top-[11%] w-[136px]" viewBox="0 0 160 100" fill="none">
+          <path d="M160 16 C132 16 116 32 114 48 C96 42 78 52 74 68 C54 64 36 74 36 88 C36 93 44 95 55 95 L160 95 Z" fill="#FFFDFB"/>
+          <path d="M160 76 Q102 72 38 88 L48 95 L160 95 Z" fill="#FDE2DA" opacity="0.75"/>
+        </svg>
+
+        <!-- Cụm mây tím hồng dịu lúc hoàng hôn (Hiện thêm ở nhánh Từ chối) -->
+        <div id="twilight-cloud-bands" class="opacity-0 transition-opacity duration-1000">
+          <svg class="absolute right-[8px] top-[18%] w-[180px] opacity-45" viewBox="0 0 200 50" fill="none">
+            <path d="M25 40 Q40 20 65 26 Q85 10 115 22 Q145 14 165 30 Q185 30 190 40 Z" fill="#D59BB8"/>
+          </svg>
+          <svg class="absolute left-[-8px] top-[34%] w-[150px] opacity-40" viewBox="0 0 180 50" fill="none">
+            <path d="M0 42 Q30 22 60 28 Q90 14 120 30 Q145 26 160 42 Z" fill="#E3A5B5"/>
+          </svg>
+        </div>
+
+        <!-- Cụm mây xếp lớp dưới chân trời (Horizon Layered Paper-Cut Clouds) -->
+        <svg id="horizon-clouds-svg" class="horizon-clouds-anim absolute bottom-[48px] left-0 w-full h-[270px]" viewBox="0 0 430 270" preserveAspectRatio="none" fill="none">
+          <defs>
+            <filter id="cloud-layer-shadow" x="-10%" y="-10%" width="120%" height="125%">
+              <feDropShadow dx="0" dy="-3" stdDeviation="4" flood-color="#8A4842" flood-opacity="0.12"/>
+            </filter>
+          </defs>
+          <!-- Lớp mây trắng phía sau -->
+          <path filter="url(#cloud-layer-shadow)" d="M0 85 C35 82 58 106 62 132 C85 125 108 142 112 168 L0 168 Z" fill="#FFFDF9"/>
+          <path filter="url(#cloud-layer-shadow)" d="M430 92 C392 90 368 114 364 140 C340 132 318 148 314 174 L430 174 Z" fill="#FFFDF9"/>
+          <!-- Lớp mây kem hồng ấm phía trước hai bên sườn đồi -->
+          <path filter="url(#cloud-layer-shadow)" d="M0 128 C38 128 62 154 60 182 C88 176 114 194 118 220 C138 214 156 226 162 246 L0 246 Z" fill="#FFE6D6"/>
+          <path filter="url(#cloud-layer-shadow)" d="M430 132 C390 132 366 158 368 186 C340 180 314 198 310 224 C290 218 272 230 266 250 L430 250 Z" fill="#FFE6D6"/>
+          <!-- Lớp mây hồng đào sát chân đồi -->
+          <path d="M0 176 C28 178 48 196 52 218 C78 212 102 226 108 250 L0 250 Z" fill="#FFC2BA" opacity="0.85"/>
+          <path d="M430 174 C400 176 380 194 376 216 C350 210 326 224 320 248 L430 248 Z" fill="#FFC2BA" opacity="0.85"/>
+        </svg>
+      </div>
+
+      <!-- ====================================================================
+           LAYER 3 (z-30): FOREGROUND STAGE (NGỌN ĐỒI TRÒN & CẶP ĐÔI CHIBI)
+           ==================================================================== -->
+      <div class="foreground-stage-layer">
+        <!-- Ngọn đồi cỏ tròn ở đáy màn hình -->
+        <svg id="foreground-hill-svg" class="absolute bottom-0 left-0 w-full h-[138px]" viewBox="0 0 430 138" preserveAspectRatio="none" fill="none">
+          <!-- Thân đồi cỏ tròn viền nâu -->
+          <path id="hill-main-fill" class="hill-base-path" d="M-15 102 Q215 12 445 102 L445 142 L-15 142 Z" fill="#778746" stroke="#522D24" stroke-width="3.2"/>
+          <!-- Bóng cỏ đậm ở chân màn hình -->
+          <path id="hill-bottom-shade" d="M-15 112 Q215 48 445 112 L445 142 L-15 142 Z" fill="#637238" opacity="0.55"/>
+
+          <!-- Các bụi cỏ nhỏ trên sống đồi -->
+          <path d="M38 82 L35 74 M41 82 L43 73 M108 62 L106 55 M112 62 L115 55 M316 61 L314 54 M320 61 L323 54 M375 78 L373 71 M379 78 L382 71" stroke="#4D5928" stroke-width="2.4" stroke-linecap="round"/>
+
+          <!-- Nhóm hoa anh đào & cánh hoa rơi trên thảm cỏ (Hiển thị ở Màn 1 & Nhánh Đồng ý GĐ 2-4) -->
+          <g id="hill-flowers-group" style="opacity: 1;">
+            <!-- Hoa anh đào 1 (Trái) -->
+            <g transform="translate(38, 114) scale(0.76)">
+              <circle cx="0" cy="-7" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="0" cy="0" r="3" fill="#FFE082" stroke="#522D24" stroke-width="2"/>
+            </g>
+            <!-- Hoa anh đào 2 -->
+            <g transform="translate(132, 92) scale(0.85)">
+              <circle cx="0" cy="-7" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="0" cy="0" r="3" fill="#FFE082" stroke="#522D24" stroke-width="2"/>
+            </g>
+            <!-- Hoa anh đào 3 -->
+            <g transform="translate(156, 120) scale(0.68)">
+              <circle cx="0" cy="-7" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="0" cy="0" r="3" fill="#FFE082" stroke="#522D24" stroke-width="2"/>
+            </g>
+            <!-- Hoa anh đào 4 (Phải) -->
+            <g transform="translate(308, 96) scale(0.8)">
+              <circle cx="0" cy="-7" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="0" cy="0" r="3" fill="#FFE082" stroke="#522D24" stroke-width="2"/>
+            </g>
+            <!-- Hoa anh đào 5 -->
+            <g transform="translate(330, 82) scale(0.75)">
+              <circle cx="0" cy="-7" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="0" cy="0" r="3" fill="#FFE082" stroke="#522D24" stroke-width="2"/>
+            </g>
+            <!-- Hoa anh đào 6 -->
+            <g transform="translate(384, 126) scale(0.82)">
+              <circle cx="0" cy="-7" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-4" cy="6" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="-7" cy="-2" r="5" fill="#FFAEBE" stroke="#522D24" stroke-width="2.2"/>
+              <circle cx="0" cy="0" r="3" fill="#FFE082" stroke="#522D24" stroke-width="2"/>
+            </g>
+            <!-- Cánh hoa hồng rơi trên cỏ & hoa vàng nhỏ -->
+            <ellipse cx="70" cy="86" rx="6" ry="3" transform="rotate(24 70 86)" fill="#FFB5C2" stroke="#522D24" stroke-width="1.8"/>
+            <ellipse cx="215" cy="116" rx="5.5" ry="2.6" transform="rotate(-15 215 116)" fill="#FFB5C2" stroke="#522D24" stroke-width="1.8"/>
+            <ellipse cx="386" cy="95" rx="6.5" ry="3" transform="rotate(-22 386 95)" fill="#FFB5C2" stroke="#522D24" stroke-width="1.8"/>
+            <circle cx="96" cy="115" r="3.5" fill="#FFE082"/>
+            <circle cx="104" cy="122" r="3" fill="#FFAB91"/>
+            <circle cx="286" cy="114" r="3.5" fill="#FFE082"/>
+            <circle cx="294" cy="124" r="3" fill="#FFAB91"/>
+          </g>
+        </svg>
+
+        <!-- Cặp đôi nhân vật Chibi (Nam & Nữ) -->
+        <div id="chibi-couple-root" class="chibi-couple-wrapper"></div>
+      </div>
+
+      <!-- HTML5 Canvas vẽ hạt bay 60fps (Hoa anh đào, Trái tim, Đom đóm, Sao lấp lánh - z-35 để không che chữ trên thư tay) -->
+      <canvas id="particle-canvas" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 35;"></canvas>
+
+      <!-- ====================================================================
+           LAYER 4 (z-40): MAIN INTERACTIVE / STORY STAGE
+           ==================================================================== -->
+      <div class="interactive-story-layer">
+
+        <!-- ------------------------------------------------------------------
+             MÀN HÌNH 1: SELECTION SCREEN (Hộp quà QR + Câu hỏi + 2 Nút bấm)
+             ------------------------------------------------------------------ -->
+        <section id="screen-selection" class="interactive-active absolute inset-0 flex flex-col items-center pt-[16%] px-5">
+          <!-- Câu hỏi viết tay (Chuẩn begining.png) -->
+          <h1 class="confession-headline mb-2 select-none">
+            Hôm nay tớ đã lấy hết can đảm<br />
+            để tỏ tình cậu... cậu<br />
+            đã đồng ý hay từ chối vậy?
+          </h1>
+
+          <!-- Hộp quà mở hé nắp + Trái tim bay lên + Thiệp QR "Tặng cậu" -->
+          <div class="gift-box-container relative w-[290px] h-[195px] my-1 flex items-center justify-center">
+            <svg viewBox="0 0 310 210" class="w-full h-full overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Hào quang ấm áp tỏa ra từ hộp quà -->
+              <radialGradient id="gift-aura" cx="50%" cy="48%" r="50%">
+                <stop offset="0%" stop-color="#FFF7CC" stop-opacity="0.92"/>
+                <stop offset="65%" stop-color="#FFE4A3" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#FFE4A3" stop-opacity="0"/>
+              </radialGradient>
+              <ellipse cx="155" cy="96" rx="115" ry="75" fill="url(#gift-aura)"/>
+
+              <!-- Bóng đổ dưới đáy hộp quà -->
+              <ellipse cx="155" cy="176" rx="88" ry="18" fill="#D5AE82" opacity="0.48"/>
+
+              <!-- Những trái tim nhỏ & ngôi sao bay lên từ hộp quà -->
+              <g class="gift-heart-1" transform="translate(148, 32)">
+                <path d="M0 7 C-9 -1 -5 -9 0 -3 C5 -9 9 -1 0 7 Z" fill="#FF857D" stroke="#5A2E23" stroke-width="2" stroke-linejoin="round"/>
+              </g>
+              <g class="gift-heart-2" transform="translate(170, 56) scale(1.35)">
+                <path d="M0 8 C-11 -1 -6 -11 0 -3.5 C6 -11 11 -1 0 8 Z" fill="#FF7C74" stroke="#5A2E23" stroke-width="1.9" stroke-linejoin="round"/>
+              </g>
+              <g class="gift-heart-3" transform="translate(155, 84) scale(0.95)">
+                <path d="M0 7 C-9 -1 -5 -9 0 -3 C5 -9 9 -1 0 7 Z" fill="#FF8E87" stroke="#5A2E23" stroke-width="2" stroke-linejoin="round"/>
+              </g>
+              <!-- Ngôi sao vàng nhỏ góc trên phải hộp quà -->
+              <g class="gift-heart-1" transform="translate(196, 40)">
+                <path d="M0 -8 L2.5 -2.5 L8.5 -1.8 L4 2.2 L5.2 8 L0 5 L-5.2 8 L-4 2.2 L-8.5 -1.8 L-2.5 -2.5 Z" fill="#FFE082" stroke="#5A2E23" stroke-width="1.9" stroke-linejoin="round"/>
+              </g>
+
+              <!-- THÂN HỘP QUÀ MỞ NẮP (3D Isometric Cube) -->
+              <!-- Mặt trong miệng hộp quà (phát sáng vàng ấm) -->
+              <polygon points="110,92 162,74 214,92 162,112" fill="#F9D59B" stroke="#5A2E23" stroke-width="2.6" stroke-linejoin="round"/>
+              <!-- Mặt trái hộp quà -->
+              <polygon points="110,92 162,112 162,175 110,154" fill="#F9E5C2" stroke="#5A2E23" stroke-width="2.6" stroke-linejoin="round"/>
+              <!-- Ruy băng đỏ mặt trái -->
+              <polygon points="126,98 142,104 142,167 126,160" fill="#DE524E" stroke="#5A2E23" stroke-width="2.4" stroke-linejoin="round"/>
+              <!-- Mặt phải hộp quà -->
+              <polygon points="162,112 214,92 214,154 162,175" fill="#FFF5DF" stroke="#5A2E23" stroke-width="2.6" stroke-linejoin="round"/>
+              <!-- Ruy băng đỏ mặt phải -->
+              <polygon points="182,104 198,98 198,160 182,167" fill="#E55B56" stroke="#5A2E23" stroke-width="2.4" stroke-linejoin="round"/>
+
+              <!-- Trái tim hồng đậu ngay trên mép hộp -->
+              <g class="gift-heart-2" transform="translate(185, 84) rotate(12)">
+                <path d="M0 8 C-11 -1 -6 -11 0 -3.5 C6 -11 11 -1 0 8 Z" fill="#FF8982" stroke="#5A2E23" stroke-width="2.1" stroke-linejoin="round"/>
+              </g>
+
+              <!-- NẮP HỘP QUÀ MỞ NGHIÊNG BÊN TRÁI + NƠ ĐỎ LỚN -->
+              <g transform="translate(56, 56) rotate(-34)">
+                <!-- Đế nắp hộp -->
+                <rect x="0" y="34" width="86" height="24" rx="3" fill="#FFF3D9" stroke="#5A2E23" stroke-width="2.6"/>
+                <rect x="0" y="50" width="86" height="10" rx="2" fill="#F2D7AD" stroke="#5A2E23" stroke-width="2.4"/>
+                <!-- Dải ruy băng ngang nắp -->
+                <rect x="33" y="34" width="20" height="26" fill="#DE524E" stroke="#5A2E23" stroke-width="2.4"/>
+                <!-- Chiếc nơ đỏ phồng 3D trên nắp hộp -->
+                <path d="M43 34 C25 10 4 20 14 36 C20 44 34 38 43 34 Z" fill="#E35652" stroke="#5A2E23" stroke-width="2.6" stroke-linejoin="round"/>
+                <path d="M43 34 C61 10 82 20 72 36 C66 44 52 38 43 34 Z" fill="#E35652" stroke="#5A2E23" stroke-width="2.6" stroke-linejoin="round"/>
+                <!-- Đuôi nơ rủ xuống -->
+                <path d="M38 36 L20 56 L29 56 L33 63 L43 40 Z" fill="#D14440" stroke="#5A2E23" stroke-width="2.3" stroke-linejoin="round"/>
+                <path d="M48 36 L66 54 L57 55 L53 62 L43 40 Z" fill="#D14440" stroke="#5A2E23" stroke-width="2.3" stroke-linejoin="round"/>
+                <!-- Nút thắt giữa nơ -->
+                <ellipse cx="43" cy="34" rx="7" ry="6" fill="#F06662" stroke="#5A2E23" stroke-width="2.5"/>
+              </g>
+
+              <!-- TẤM THIỆP QR "Tặng cậu" DỰA BÊN PHẢI HỘP QUÀ (Chuẩn begining.png) -->
+              <g transform="translate(192, 118) rotate(-10)">
+                <rect x="0" y="0" width="66" height="46" rx="3" fill="#FFFBF2" stroke="#5A2E23" stroke-width="2.4"/>
+                <!-- Chữ viết tay "Tặng cậu" -->
+                <text x="18" y="21" font-family="'Mali', cursive" font-weight="700" font-size="10.5" fill="#5A2E23" text-anchor="middle">Tặng</text>
+                <text x="19" y="34" font-family="'Mali', cursive" font-weight="700" font-size="10.5" fill="#5A2E23" text-anchor="middle">cậu</text>
+                <!-- Mã QR vẽ chi tiết màu nâu -->
+                <g transform="translate(34, 8)" fill="#5A2E23">
+                  <!-- 3 ô định vị góc QR -->
+                  <path d="M0,0 h8 v8 h-8 z M1.8,1.8 v4.4 h4.4 v-4.4 z M3,3 h2 v2 h-2 z"/>
+                  <path d="M18,0 h8 v8 h-8 z M19.8,1.8 v4.4 h4.4 v-4.4 z M21,3 h2 v2 h-2 z"/>
+                  <path d="M0,18 h8 v8 h-8 z M1.8,19.8 v4.4 h4.4 v-4.4 z M3,21 h2 v2 h-2 z"/>
+                  <!-- Các điểm dữ liệu QR -->
+                  <rect x="10" y="0" width="2.5" height="2.5"/>
+                  <rect x="13.5" y="2.5" width="2.5" height="2.5"/>
+                  <rect x="10" y="5.5" width="5" height="2.5"/>
+                  <rect x="0" y="10" width="2.5" height="5"/>
+                  <rect x="4" y="10" width="4" height="2.5"/>
+                  <rect x="10" y="10" width="5" height="5"/>
+                  <rect x="17" y="10" width="3" height="2.5"/>
+                  <rect x="22" y="10" width="4" height="5"/>
+                  <rect x="5" y="14" width="3" height="2.5"/>
+                  <rect x="16" y="15" width="4" height="3"/>
+                  <rect x="10" y="18" width="3" height="4"/>
+                  <rect x="15" y="20" width="5" height="2.5"/>
+                  <rect x="21" y="18" width="5" height="4"/>
+                  <rect x="10" y="23.5" width="6" height="2.5"/>
+                  <rect x="19" y="23.5" width="7" height="2.5"/>
+                </g>
+              </g>
+            </svg>
+          </div>
+
+          <!-- HAI NÚT BẤM LỰA CHỌN: ĐỒNG Ý & TỪ CHỐI (Chuẩn begining.png) -->
+          <div class="w-full flex items-center justify-center gap-4 mt-1 px-1">
+            <!-- Nút ĐỒNG Ý (#FF8A80, viền nâu tròn, hoa anh đào ở 2 góc & cánh hoa rơi) -->
+            <button id="btn-choose-accept" type="button" class="chibi-choice-btn btn-accept flex-1 max-w-[172px]">
+              <!-- Cánh hoa nhỏ bên trong trái -->
+              <svg class="w-3.5 h-3.5 mr-1.5 -mt-2" viewBox="0 0 20 20" fill="none">
+                <ellipse cx="10" cy="10" rx="7" ry="4" transform="rotate(-28 10 10)" fill="#FFC8C4" stroke="#5A2E23" stroke-width="2.2"/>
+              </svg>
+              <span>ĐỒNG Ý</span>
+              <!-- Cánh hoa nhỏ bên trong phải -->
+              <svg class="w-3.5 h-3.5 ml-1.5 mt-3" viewBox="0 0 20 20" fill="none">
+                <ellipse cx="10" cy="10" rx="6.5" ry="3.8" transform="rotate(-25 10 10)" fill="#FFC8C4" stroke="#5A2E23" stroke-width="2.2"/>
+              </svg>
+
+              <!-- Hoa anh đào góc trên phải nút ĐỒNG Ý -->
+              <svg class="absolute -top-3.5 right-3 w-8 h-8 pointer-events-none" viewBox="0 0 36 36" fill="none">
+                <g transform="translate(18, 18)">
+                  <circle cx="0" cy="-8" r="5.5" fill="#FFAEBE" stroke="#5A2E23" stroke-width="2.2"/>
+                  <circle cx="7.5" cy="-2.5" r="5.5" fill="#FFAEBE" stroke="#5A2E23" stroke-width="2.2"/>
+                  <circle cx="4.8" cy="6.5" r="5.5" fill="#FFAEBE" stroke="#5A2E23" stroke-width="2.2"/>
+                  <circle cx="-4.8" cy="6.5" r="5.5" fill="#FFAEBE" stroke="#5A2E23" stroke-width="2.2"/>
+                  <circle cx="-7.5" cy="-2.5" r="5.5" fill="#FFAEBE" stroke="#5A2E23" stroke-width="2.2"/>
+                  <circle cx="0" cy="0" r="2.8" fill="#FFE082" stroke="#5A2E23" stroke-width="1.8"/>
+                </g>
+              </svg>
+
+              <!-- Hoa anh đào góc dưới trái nút ĐỒNG Ý -->
+              <svg class="absolute -bottom-3 left-1.5 w-7 h-7 pointer-events-none" viewBox="0 0 36 36" fill="none">
+                <g transform="translate(18, 18)">
+                  <circle cx="0" cy="-8" r="5.5" fill="#FFAEBE" stroke="#5A2E23" stroke-width="2.2"/>
+                  <circle cx="7.5" cy="-2.5" r="5.5" fill="#FFAEBE" stroke="#5A2E23" stroke-width="2.2"/>
+                  <circle cx="4.8" cy="6.5" r="5.5" fill="#FFAEBE" stroke="#5A2E23" stroke-width="2.2"/>
+                  <circle cx="-4.8" cy="6.5" r="5.5" fill="#FFAEBE" stroke="#5A2E23" stroke-width="2.2"/>
+                  <circle cx="-7.5" cy="-2.5" r="5.5" fill="#FFAEBE" stroke="#5A2E23" stroke-width="2.2"/>
+                  <circle cx="0" cy="0" r="2.8" fill="#FFE082" stroke="#5A2E23" stroke-width="1.8"/>
+                </g>
+              </svg>
+            </button>
+
+            <!-- Nút TỪ CHỐI (#B3E5FC, viền nâu tròn, máy bay giấy góc trên phải & ngôi sao) -->
+            <button id="btn-choose-reject" type="button" class="chibi-choice-btn btn-reject flex-1 max-w-[172px]">
+              <!-- Ngôi sao nhỏ bên trái -->
+              <svg class="w-4 h-4 mr-1 -mt-2.5" viewBox="0 0 24 24" fill="none">
+                <path d="M12 3 L14.5 8.5 L20.5 9.2 L16 13.2 L17.2 19 L12 16 L6.8 19 L8 13.2 L3.5 9.2 L9.5 8.5 Z" fill="#FFE58F" stroke="#5A2E23" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+              <span>TỪ CHỐI</span>
+              <!-- Ngôi sao 4 cánh lấp lánh bên phải -->
+              <svg class="w-4 h-4 ml-1 mt-2.5" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2 Q13.5 10.5 22 12 Q13.5 13.5 12 22 Q10.5 13.5 2 12 Q10.5 10.5 12 2 Z" fill="#FFF3B0" stroke="#5A2E23" stroke-width="1.8" stroke-linejoin="round"/>
+              </svg>
+
+              <!-- Chiếc máy bay giấy góc trên phải nút TỪ CHỐI -->
+              <svg class="absolute -top-3.5 -right-1.5 w-11 h-8 pointer-events-none" viewBox="0 0 54 38" fill="none">
+                <polygon points="2,8 50,6 32,32 23,21" fill="#FFFDF7" stroke="#5A2E23" stroke-width="2.2" stroke-linejoin="round"/>
+                <polygon points="2,8 23,21 21,31 15,20" fill="#E8DCCB" stroke="#5A2E23" stroke-width="2.2" stroke-linejoin="round"/>
+                <line x1="2" y1="8" x2="28" y2="23" stroke="#5A2E23" stroke-width="2"/>
+              </svg>
+            </button>
+          </div>
+        </section>
+
+        <!-- ------------------------------------------------------------------
+             MÀN HÌNH 2A (LUỒNG ĐỒNG Ý): PHONG BÌ THẮT NƠ & BỨC THƯ NGỌT NGÀO
+             ------------------------------------------------------------------ -->
+        <section id="stage-accept-props" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0">
+          <div id="accept-envelope-stage" class="relative w-[320px] h-[340px] -mt-[85px] flex items-center justify-center">
+            <!-- Vầng hào quang xoáy lấp lánh quanh phong bì (Giai đoạn 3) -->
+            <svg id="accept-aura-svg" class="envelope-aura-ring absolute w-[320px] h-[320px] opacity-0" viewBox="0 0 320 320" fill="none">
+              <ellipse cx="160" cy="160" rx="135" ry="72" transform="rotate(-18 160 160)" stroke="#FFF5C2" stroke-width="2.5" stroke-dasharray="60 35" opacity="0.78"/>
+              <ellipse cx="160" cy="160" rx="122" ry="62" transform="rotate(15 160 160)" stroke="#FFE49E" stroke-width="2" stroke-dasharray="45 40" opacity="0.65"/>
+              <circle cx="42" cy="135" r="4" fill="#FFF9D6"/>
+              <circle cx="275" cy="118" r="4.5" fill="#FFF9D6"/>
+              <circle cx="248" cy="215" r="3.5" fill="#FFF9D6"/>
+              <circle cx="68" cy="210" r="3.5" fill="#FFF9D6"/>
+            </svg>
+
+            <!-- Khối Phong bì & Tờ thư tay (nghiêng nhẹ -9 độ chuẩn accept.png GĐ 3 & 4) -->
+            <div id="accept-envelope-card" class="relative w-[248px] h-[270px] flex items-end justify-center" style="transform: rotate(-8deg);">
+              <svg viewBox="0 0 260 290" class="w-full h-full overflow-visible" fill="none">
+                <defs>
+                  <filter id="env-drop-shadow" x="-15%" y="-15%" width="135%" height="135%">
+                    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#5A281E" flood-opacity="0.24"/>
+                  </filter>
+                </defs>
+
+                <!-- 1. Mặt lưng phong bì & Nắp mở lên trên (Hiện khi mở phong bì ở GĐ 4) -->
+                <g filter="url(#env-drop-shadow)">
+                  <rect x="20" y="138" width="220" height="132" rx="8" fill="#F6E0C1" stroke="#5A2E23" stroke-width="2.8"/>
+                  <!-- Nắp phong bì khi đã lật mở lên (GĐ 4) -->
+                  <path id="accept-flap-opened" d="M20 140 L130 68 L240 140 Z" fill="#F9E7CB" stroke="#5A2E23" stroke-width="2.8" stroke-linejoin="round" opacity="0"/>
+                </g>
+
+                <!-- 2. TỜ GIẤY THƯ TAY TRƯỢT LÊN TỪ PHONG BÌ (GĐ 4 chuẩn accept.png) -->
+                <g id="accept-letter-paper" transform="translate(0, 75)" opacity="0">
+                  <rect x="32" y="16" width="196" height="218" rx="5" fill="#FFFBF2" stroke="#5A2E23" stroke-width="2.7"/>
+                  <!-- Nội dung trích dẫn chữ viết tay chuẩn accept.png GĐ 4 -->
+                  <g font-family="'Mali', cursive" font-weight="600" font-size="11.2" fill="#4A2219">
+                    <text x="48" y="44">Gửi cậu — cô gái từ hôm</text>
+                    <text x="48" y="60">nay đã có thể gọi là 'người</text>
+                    <text x="48" y="76">thương'...</text>
+                    <text x="48" y="96">Khoảnh khắc cậu chạm vào</text>
+                    <text x="48" y="112">nút 'Đồng ý', có lẽ là một</text>
+                    <text x="48" y="128">trong những khoảnh khắc</text>
+                    <text x="48" y="144">hạnh phúc nhất của tớ...</text>
+                  </g>
+                </g>
+
+                <!-- 3. Túi trước của phong bì (Che phần chân tờ giấy thư tạo chiều sâu 3D) -->
+                <g id="accept-envelope-pocket">
+                  <!-- Cánh trái & phải của phong bì -->
+                  <path d="M20 140 L108 205 L20 270 Z" fill="#FCECD2" stroke="#5A2E23" stroke-width="2.6" stroke-linejoin="round"/>
+                  <path d="M240 140 L152 205 L240 270 Z" fill="#FCECD2" stroke="#5A2E23" stroke-width="2.6" stroke-linejoin="round"/>
+                  <!-- Cánh dưới của phong bì -->
+                  <path d="M20 270 L118 198 Q130 190 142 198 L240 270 Z" fill="#FFF5E2" stroke="#5A2E23" stroke-width="2.8" stroke-linejoin="round"/>
+                </g>
+
+                <!-- 4. Nắp phong bì đóng + Ruy băng đỏ & Con dấu sáp trái tim (GĐ 3 chuẩn accept.png) -->
+                <g id="accept-closed-seal-group">
+                  <!-- Nắp đậy xuống -->
+                  <path d="M20 140 L130 214 L240 140 Z" fill="#FFF7E8" stroke="#5A2E23" stroke-width="2.8" stroke-linejoin="round"/>
+                  <!-- Dải ruy băng đỏ vắt chéo phong bì -->
+                  <path d="M20 176 L240 230 M20 230 L240 176" stroke="#D94B47" stroke-width="7.5" stroke-linecap="round"/>
+                  <path d="M20 176 L240 230 M20 230 L240 176" stroke="#5A2E23" stroke-width="2.2" stroke-linecap="round"/>
+
+                  <!-- Chiếc nơ đỏ & Con dấu sáp trái tim ở chính giữa -->
+                  <g transform="translate(130, 204)">
+                    <path d="M0 0 C-26 -22 -44 -6 -32 10 C-24 20 -10 10 0 0 Z" fill="#DF4F4B" stroke="#5A2E23" stroke-width="2.6" stroke-linejoin="round"/>
+                    <path d="M0 0 C26 -22 44 -6 32 10 C24 20 10 10 0 0 Z" fill="#DF4F4B" stroke="#5A2E23" stroke-width="2.6" stroke-linejoin="round"/>
+                    <path d="M-5 4 L-18 28 L-8 26 L-4 32 L2 6 Z" fill="#C83E3A" stroke="#5A2E23" stroke-width="2.4" stroke-linejoin="round"/>
+                    <path d="M5 4 L18 28 L8 26 L4 32 L-2 6 Z" fill="#C83E3A" stroke="#5A2E23" stroke-width="2.4" stroke-linejoin="round"/>
+                    <!-- Con dấu sáp tròn có trái tim nổi -->
+                    <circle cx="0" cy="0" r="11" fill="#C63B38" stroke="#5A2E23" stroke-width="2.4"/>
+                    <path d="M0 4.5 C-6.5 -0.5 -3.5 -6 0 -2 C3.5 -6 6.5 -0.5 0 4.5 Z" fill="#FF8E88" stroke="#5A2E23" stroke-width="1.6"/>
+                  </g>
+                </g>
+              </svg>
+
+              <!-- Nút mở đọc toàn bộ bức thư đầy đủ (Hiện ở GĐ 4) -->
+              <button
+                id="btn-open-full-accept"
+                type="button"
+                class="interactive-active hidden absolute -bottom-11 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1.5 rounded-full bg-[#FFF7E8] border-2 border-[#5A2E23] text-[#5A2E23] font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition"
+                style="transform: translateX(-50%) rotate(8deg);"
+              >
+                💌 Đọc trọn bức thư tay
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ------------------------------------------------------------------
+             MÀN HÌNH 2B (LUỒNG TỪ CHỐI): MÁY BAY GIẤY & BỨC THƯ CẢM ƠN
+             ------------------------------------------------------------------ -->
+        <section id="stage-reject-props" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0">
+          <!-- 1. Chiếc máy bay giấy trắng bay qua bầu trời sao kèm vệt sáng (GĐ 2 & đầu GĐ 3 chuẩn reject.png) -->
+          <div id="reject-paper-plane" class="absolute top-[28%] left-[18%] w-[240px] h-[110px] opacity-0">
+            <svg viewBox="0 0 250 110" class="w-full h-full overflow-visible" fill="none">
+              <!-- Vệt sáng lấp lánh phía sau máy bay giấy -->
+              <path d="M88 46 Q155 62 235 92" stroke="url(#plane-trail-grad)" stroke-width="14" stroke-linecap="round" opacity="0.55"/>
+              <path d="M92 42 Q158 56 225 82" stroke="#FFF9D8" stroke-width="1.8" stroke-dasharray="6 8" stroke-linecap="round" opacity="0.85"/>
+              <path d="M85 52 Q145 70 210 96" stroke="#FFF9D8" stroke-width="1.5" stroke-dasharray="4 9" stroke-linecap="round" opacity="0.7"/>
+              <circle cx="122" cy="54" r="2.2" fill="#FFF9D6"/>
+              <circle cx="156" cy="68" r="2.5" fill="#FFE89E"/>
+              <circle cx="188" cy="74" r="1.8" fill="#FFF9D6"/>
+              <defs>
+                <linearGradient id="plane-trail-grad" x1="88" y1="46" x2="235" y2="92" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#FFF7D6" stop-opacity="0.75"/>
+                  <stop offset="100%" stop-color="#FFF7D6" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Thân máy bay giấy trắng viền nâu chuẩn reject.png -->
+              <g transform="translate(8, 12)">
+                <polygon points="0,12 94,16 62,48 45,31" fill="#FFFDF9" stroke="#522D24" stroke-width="2.5" stroke-linejoin="round"/>
+                <polygon points="0,12 45,31 41,45 31,29" fill="#E5D8CA" stroke="#522D24" stroke-width="2.5" stroke-linejoin="round"/>
+                <polygon points="0,12 62,48 76,25" fill="#F7EFE4" stroke="#522D24" stroke-width="2.5" stroke-linejoin="round"/>
+              </g>
+            </svg>
+          </div>
+
+          <!-- 2. Hiệu ứng Máy bay giấy biến đổi thành tờ giấy thư (Cuối GĐ 3 chuẩn reject.png) -->
+          <div id="reject-unfolding-sheet" class="absolute top-[25%] left-1/2 -translate-x-1/2 w-[180px] h-[160px] opacity-0">
+            <svg viewBox="0 0 200 180" class="w-full h-full overflow-visible" fill="none">
+              <!-- Tờ giấy kem đang mở dần -->
+              <path d="M48 34 L158 18 C164 68 176 112 192 142 L78 164 C60 132 50 86 48 34 Z" fill="#FBEAD2" stroke="#522D24" stroke-width="2.6" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <!-- 3. Bức thư mở hoàn chỉnh ở Giai đoạn 4 (12s - 15s chuẩn reject.png GĐ 4) -->
+          <div id="reject-letter-card" class="relative w-[256px] h-[270px] -mt-[85px] opacity-0 flex items-center justify-center" style="transform: rotate(-5deg);">
+            <svg viewBox="0 0 260 280" class="w-full h-full overflow-visible" fill="none">
+              <g filter="url(#env-drop-shadow)">
+                <!-- Phong bì mở phía sau -->
+                <path d="M18 112 L130 28 L242 112 L242 252 L18 252 Z" fill="#F5E5D3" stroke="#522D24" stroke-width="2.7" stroke-linejoin="round"/>
+                <path d="M18 112 L95 182 L18 252 Z" fill="#EFE0CE" stroke="#522D24" stroke-width="2.4" stroke-linejoin="round"/>
+                <path d="M242 112 L165 182 L242 252 Z" fill="#EFE0CE" stroke="#522D24" stroke-width="2.4" stroke-linejoin="round"/>
+                <path d="M18 252 L130 176 L242 252 Z" fill="#FAF0E4" stroke="#522D24" stroke-width="2.6" stroke-linejoin="round"/>
+
+                <!-- Tờ giấy thư tâm tình nổi lên trước -->
+                <path d="M34 52 L222 44 C226 112 230 178 238 236 L44 244 C38 182 36 118 34 52 Z" fill="#FFFDF4" stroke="#522D24" stroke-width="2.7" stroke-linejoin="round"/>
+
+                <!-- Chữ viết tay chuẩn reject.png GĐ 4 -->
+                <g font-family="'Mali', cursive" font-weight="700" font-size="12.2" fill="#3B1D16" text-anchor="middle">
+                  <text x="134" y="92">Thích cậu là một</text>
+                  <text x="134" y="111">cảm xúc rất đẹp của</text>
+                  <text x="134" y="130">riêng tớ...</text>
+
+                  <text x="136" y="168">Cậu đừng cảm thấy</text>
+                  <text x="136" y="188">áy náy hay khó xử nhé...</text>
+                </g>
+              </g>
+            </svg>
+
+            <!-- Nút mở đọc toàn bộ bức thư đầy đủ (Nhánh Từ chối) -->
+            <button
+              id="btn-open-full-reject"
+              type="button"
+              class="interactive-active hidden absolute -bottom-10 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1.5 rounded-full bg-[#FFFDF4] border-2 border-[#522D24] text-[#522D24] font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition"
+              style="transform: translateX(-50%) rotate(5deg);"
+            >
+              ✉️ Đọc trọn bức thư cảm ơn
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- ====================================================================
+           LAYER 5 (z-50): HUD, TIMELINE BAR & SUBTITLES
+           ==================================================================== -->
+      <div class="hud-overlay-layer">
+        <!-- Thanh Thời Gian (Timeline Progress Bar) ở đỉnh màn hình (Chuẩn accept.png & reject.png) -->
+        <header id="story-timeline-hud" class="absolute top-0 left-0 right-0 pt-3.5 px-5" style="opacity: 0;">
+          <div class="timeline-bar-track">
+            <div id="timeline-bar-fill" class="timeline-bar-fill"></div>
+            <div id="timeline-bar-knob" class="timeline-bar-knob"></div>
+          </div>
+          <!-- Các mốc giây bên dưới thanh tiến trình -->
+          <div id="timeline-ticks-row" class="flex justify-between items-center text-[11px] font-semibold text-white/95 mt-1.5 drop-shadow">
+            <span>00 giây</span>
+            <span>12 giây</span>
+            <span>25 giây</span>
+            <span>40 giây</span>
+          </div>
+        </header>
+
+        <!-- Cụm nút điều khiển góc trên phải (Chỉ giữ lại nút Skip ✉ theo yêu cầu) -->
+        <div class="hud-interactive absolute top-12 right-4 flex items-center gap-2 z-50">
+          <!-- Nút bật/tắt âm thanh (Đã ẩn theo yêu cầu) -->
+          <button
+            id="btn-mute-audio"
+            type="button"
+            aria-label="Bật/Tắt nhạc"
+            class="hidden"
+            style="display: none !important;"
+          >
+            <span id="mute-icon">🔊</span>
+          </button>
+
+          <!-- Nút Skip ✉ (Chuẩn begining.png & mục 5.1 Tài liệu đặc tả: hiển thị với opacity 0.6, bấm gọi timeline.progress(1)) -->
+          <button
+            id="btn-skip-story"
+            type="button"
+            class="skip-pill-btn hidden"
+            style="opacity: 0.6;"
+          >
+            <span>Skip</span>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="5" width="18" height="14" rx="2"/>
+              <path d="M3 7l9 6 9-6"/>
+            </svg>
+          </button>
+
+          <!-- Nút Xem lại từ đầu (Đã ẩn theo yêu cầu) -->
+          <button
+            id="btn-replay-story"
+            type="button"
+            class="hidden"
+            style="display: none !important;"
+          >
+            <span>↺ Xem lại</span>
+          </button>
+        </div>
+
+        <!-- Phụ đề (Subtitles) ở đáy màn hình (Đổi chữ theo từng giai đoạn) -->
+        <div id="subtitle-container" class="subtitle-backdrop absolute bottom-0 left-0 right-0 pt-7 pb-3.5 px-5 pointer-events-none" style="opacity: 0;">
+          <p id="subtitle-text" class="subtitle-caption"></p>
+        </div>
+
+        <!-- ==================================================================
+             MODAL ĐỌC TRỌN VẸN BỨC THƯ TAY (Mục 4.1 & 4.2 Tài liệu đặc tả)
+             ================================================================== -->
+        <div
+          id="full-letter-modal"
+          class="hud-interactive fixed inset-0 z-50 hidden items-center justify-center bg-black/55 backdrop-blur-sm p-4"
+        >
+          <div class="letter-paper-sheet relative w-full max-w-[390px] max-h-[84dvh] flex flex-col p-6 text-[#4A251D] overflow-hidden">
+            <!-- Header bức thư -->
+            <div class="flex items-center justify-between border-b border-[#D9B896]/60 pb-3 mb-3">
+              <div class="flex items-center gap-2">
+                <span id="modal-letter-badge" class="text-xl">💌</span>
+                <span class="font-bold text-sm tracking-wide text-[#7A4436]">LỜI NHẮN GỬI CẬU</span>
+              </div>
+              <button
+                id="btn-close-letter-modal"
+                type="button"
+                class="w-8 h-8 rounded-full bg-[#F5E1C8] border-2 border-[#522D24] text-[#522D24] font-bold flex items-center justify-center hover:scale-105 active:scale-95"
+              >
+                ✕
+              </button>
+            </div>
+
+            <!-- Nội dung bức thư cuộn mượt -->
+            <div class="overflow-y-auto pr-1 space-y-3.5 stage-letter-text text-[15.5px] leading-[1.75]">
+              <p id="modal-letter-salutation" class="font-bold text-[17px] text-[#5B261D]"></p>
+              <div id="modal-letter-body" class="space-y-3.5"></div>
+              <p id="modal-letter-signoff" class="text-right font-bold text-[#6E3529] pt-2 italic"></p>
+            </div>
+
+            <!-- Footer nút đóng -->
+            <div class="pt-4 mt-3 border-t border-[#D9B896]/60 flex justify-center">
+              <button
+                id="btn-close-letter-bottom"
+                type="button"
+                class="px-6 py-2 rounded-full bg-[#FF8A80] text-white font-bold text-sm border-2 border-[#522D24] shadow hover:scale-105 active:scale-95 transition"
+              >
+                Đóng thư & Ngắm cảnh tiếp ✨
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             MÀN HÌNH 0: KHỞI TẠO & TẢI NGẦM (PRELOADER)
+             ================================================================== -->
+        <div
+          id="screen-preloader"
+          class="hud-interactive absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-b from-[#FA8482] via-[#FCC49A] to-[#FFF2BD] transition-opacity duration-700"
+        >
+          <div class="preloader-heart mb-4">
+            <svg class="w-20 h-20 drop-shadow-md" viewBox="0 0 80 80" fill="none">
+              <path
+                d="M40 66 C12 46 10 22 25 16 C33 13 38 19 40 24 C42 19 47 13 55 16 C70 22 68 46 40 66 Z"
+                fill="#FF7E78"
+                stroke="#522D24"
+                stroke-width="3.5"
+                stroke-linejoin="round"
+              />
+              <ellipse cx="28" cy="27" rx="5" ry="3" transform="rotate(-30 28 27)" fill="#FFB8B3"/>
+            </svg>
+          </div>
+          <p class="font-['Mali'] font-bold text-lg text-[#5B261D] tracking-wide mb-3">
+            Đang mở hộp quà...
+          </p>
+          <div class="w-44 h-2.5 bg-white/50 rounded-full overflow-hidden border border-[#522D24]/30 p-0.5">
+            <div id="preloader-bar" class="h-full bg-[#FF7E78] rounded-full transition-all duration-300" style="width: 15%;"></div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/audio-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
