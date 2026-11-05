@@ -26,12 +26,15 @@ class ConfessionApp {
       // Sky layers (Layer 1)
       skySelection: document.getElementById('sky-selection'),
       skyAccept1: document.getElementById('sky-accept-1'),
+      skyAcceptDawn: document.getElementById('sky-accept-dawn'),
       skyAccept2: document.getElementById('sky-accept-2'),
       skyReject1: document.getElementById('sky-reject-1'),
 
       // Atmosphere (Layer 2)
       sunburstRays: document.getElementById('sunburst-rays'),
       sunGlowDome: document.getElementById('sun-glow-dome'),
+      risingSunOrb: document.getElementById('rising-sun-orb'),
+      horizonCloudsSvg: document.getElementById('horizon-clouds-svg'),
       twilightClouds: document.getElementById('twilight-cloud-bands'),
 
       // Foreground Stage (Layer 3)
@@ -240,20 +243,32 @@ class ConfessionApp {
   }
 
   /**
-   * KỊCH BẢN MÀN HÌNH 2A: LUỒNG "ĐỒNG Ý" (40 GIÂY — 4 GIAI ĐOẠN)
+   * KỊCH BẢN MÀN HÌNH 2A: LUỒNG "ĐỒNG Ý" (20 GIÂY — MẶT TRỜI MỌC & BẦU TRỜI SÁNG DẦN)
    */
   startAcceptTimeline() {
     const flow = this.config.acceptFlow;
-    const total = flow.totalDuration; // 40s
+    const total = flow.totalDuration; // 20s
 
     // Chuẩn bị trạng thái ban đầu của phong bì
     this.dom.stageAcceptProps.style.opacity = '1';
-    gsap.set(this.dom.acceptEnvelopeCard, { scale: 0, rotation: -18, opacity: 0 });
+    gsap.set(this.dom.acceptEnvelopeCard, { scale: 0, rotation: -18, opacity: 0, y: 0 });
     gsap.set(this.dom.acceptAuraSvg, { scale: 0.6, opacity: 0 });
     gsap.set(this.dom.acceptFlapOpened, { opacity: 0 });
     gsap.set(this.dom.acceptLetterPaper, { y: 75, opacity: 0 });
     gsap.set(this.dom.acceptClosedSeal, { opacity: 1, scale: 1 });
     this.dom.btnOpenFullAccept.classList.add('hidden');
+
+    // Thiết lập trạng thái khởi đầu lúc 00s (Đêm chạng vạng trước khi mặt trời nhô lên)
+    this.setSkyOpacity(0, 1, 0, 0, 0);
+    gsap.set(this.dom.risingSunOrb, { xPercent: -50, y: 155, scale: 0.65, opacity: 0.15 });
+    gsap.set(this.dom.sunGlowDome, { xPercent: -50, y: 120, scale: 0.72, opacity: 0.25 });
+    gsap.set(this.dom.sunburstRays, { opacity: 0, scale: 0.72 });
+    gsap.set(this.dom.hillMainFill, { attr: { fill: '#45412E' } });
+    gsap.set(this.dom.hillBottomShade, { attr: { fill: '#333021' } });
+    gsap.set(this.dom.hillFlowersGroup, { opacity: 0.12 });
+    if (this.dom.horizonCloudsSvg) {
+      gsap.set(this.dom.horizonCloudsSvg, { filter: 'brightness(0.78) saturate(0.85)' });
+    }
 
     if (this.timeline) this.timeline.kill();
 
@@ -267,7 +282,109 @@ class ConfessionApp {
       }
     });
 
-    // --- GIAI ĐOẠN 1 (00s – 12s): Bầu trời tím hồng chạng vạng đầy sao ---
+    // =========================================================================
+    // CHUYỂN ĐỘNG LIÊN TỤC (00s -> 11s): MẶT TRỜI MỌC DẦN & BẦU TRỜI BỪNG SÁNG
+    // =========================================================================
+    // 1. Quả cầu mặt trời & Hào quang từ từ nhô cao lên từ sau ngọn đồi
+    this.timeline.to(
+      this.dom.risingSunOrb,
+      {
+        y: -28,
+        scale: 1.08,
+        opacity: 1,
+        duration: 10.2,
+        ease: 'power1.inOut'
+      },
+      0.3
+    );
+    this.timeline.to(
+      this.dom.sunGlowDome,
+      {
+        y: -12,
+        scale: 1.15,
+        opacity: 1,
+        duration: 10.2,
+        ease: 'power1.inOut'
+      },
+      0.3
+    );
+
+    // 2. Bầu trời sáng dần theo độ cao của mặt trời (Tím đêm -> Hồng bình minh -> Cam vàng rực rỡ)
+    this.timeline.to(
+      this.dom.skyAcceptDawn,
+      {
+        opacity: 1,
+        duration: 4.8,
+        ease: 'sine.inOut'
+      },
+      1.0
+    );
+    this.timeline.to(
+      this.dom.skyAccept2,
+      {
+        opacity: 1,
+        duration: 5.5,
+        ease: 'sine.inOut'
+      },
+      4.8
+    );
+
+    // 3. Tia nắng xoay nhẹ tỏa rộng dần khi mặt trời nhô qua đỉnh đồi
+    this.timeline.to(
+      this.dom.sunburstRays,
+      {
+        opacity: 1,
+        scale: 1.05,
+        duration: 7.5,
+        ease: 'power1.inOut'
+      },
+      2.8
+    );
+
+    // 4. Đồi cỏ, Mây & Hoa anh đào sáng dần lên khi ánh bình minh chiếu tới
+    this.timeline.to(
+      this.dom.hillMainFill,
+      {
+        attr: { fill: '#758843' },
+        duration: 8.5,
+        ease: 'sine.inOut'
+      },
+      1.5
+    );
+    this.timeline.to(
+      this.dom.hillBottomShade,
+      {
+        attr: { fill: '#5E6E34' },
+        duration: 8.5,
+        ease: 'sine.inOut'
+      },
+      1.5
+    );
+    this.timeline.to(
+      this.dom.hillFlowersGroup,
+      {
+        opacity: 1,
+        duration: 5.5,
+        ease: 'sine.inOut'
+      },
+      3.5
+    );
+    if (this.dom.horizonCloudsSvg) {
+      this.timeline.to(
+        this.dom.horizonCloudsSvg,
+        {
+          filter: 'brightness(1.03) saturate(1.05)',
+          duration: 7.5,
+          ease: 'sine.inOut'
+        },
+        1.8
+      );
+    }
+
+    // =========================================================================
+    // CÁC MỐC PHÂN CẢNH KỊCH BẢN (20 GIÂY — 4 GIAI ĐOẠN)
+    // =========================================================================
+    // --- GIAI ĐOẠN 1 (00s – 05s): Bầu trời sao chạng vạng & Bình minh hé rạng ---
     this.timeline.call(
       () => {
         this.applyStageEnvironment('accept', flow.stages[0]);
@@ -276,45 +393,42 @@ class ConfessionApp {
       0
     );
 
-    // Giữ nhịp 0s -> 12s + Hiện nút Skip ✉ ở giây thứ 5 (opacity: 0.6)
-    this.timeline.to({}, { duration: 5 }, 0);
+    // Hiện nút Skip ✉ ở giây 2.5 (opacity: 0.6)
     this.timeline.call(
       () => {
         this.dom.btnSkip.classList.remove('hidden');
         this.dom.btnSkip.style.opacity = '0.6';
       },
       null,
-      5
+      2.5
     );
-    this.timeline.to({}, { duration: 7 }, 5);
 
-    // --- GIAI ĐOẠN 2 (12s – 25s): Mặt trời nhô lên sau đồi, cặp đôi cười tít mắt, hoa & tim bay ---
+    // --- GIAI ĐOẠN 2 (05s – 11s): Mặt trời nhô lên sau đồi, cặp đôi cười tít mắt, hoa & tim bay ---
     this.timeline.call(
       () => {
         this.applyStageEnvironment('accept', flow.stages[1]);
       },
       null,
-      12
+      5
     );
-    this.timeline.to({}, { duration: 13 }, 12);
 
-    // --- GIAI ĐOẠN 3 (25s – 32s): Phong bì kem thắt nơ đỏ + dấu sáp trái tim xuất hiện giữa hào quang ---
+    // --- GIAI ĐOẠN 3 (11s – 15s): Phong bì kem thắt nơ đỏ + dấu sáp trái tim xuất hiện giữa hào quang ---
     this.timeline.call(
       () => {
         this.applyStageEnvironment('accept', flow.stages[2]);
       },
       null,
-      25
+      11
     );
     this.timeline.to(
       this.dom.acceptAuraSvg,
       {
         opacity: 1,
         scale: 1,
-        duration: 1.4,
+        duration: 1.1,
         ease: 'back.out(1.4)'
       },
-      25
+      11
     );
     this.timeline.to(
       this.dom.acceptEnvelopeCard,
@@ -322,33 +436,33 @@ class ConfessionApp {
         opacity: 1,
         scale: 1,
         rotation: -8,
-        duration: 1.6,
+        duration: 1.25,
         ease: 'elastic.out(1, 0.65)'
       },
-      25.1
+      11.1
     );
-    // Phong bì bồng bềnh nhẹ từ 26.7s -> 32s
+    // Phong bì bồng bềnh nhẹ từ 12.3s -> 15s
     this.timeline.to(
       this.dom.acceptEnvelopeCard,
       {
         y: -7,
         rotation: -5,
-        duration: 2.6,
+        duration: 1.35,
         yoyo: true,
         repeat: 1,
         ease: 'sine.inOut'
       },
-      26.7
+      12.3
     );
 
-    // --- GIAI ĐOẠN 4 (32s – 40s): Mở nơ đỏ, lật nắp phong bì, trượt bức thư tay lên & giảm nhạc 25% ---
+    // --- GIAI ĐOẠN 4 (15s – 20s): Mở nơ đỏ, lật nắp phong bì, trượt bức thư tay lên & giảm nhạc 25% ---
     this.timeline.call(
       () => {
         this.applyStageEnvironment('accept', flow.stages[3]);
-        this.audio.fadeVolumeTo(this.config.audio.endLoopVolume || 0.25, 2.5);
+        this.audio.fadeVolumeTo(this.config.audio.endLoopVolume || 0.25, 2.0);
       },
       null,
-      32
+      15
     );
 
     // Nơ đỏ & nắp đóng mở ra
@@ -357,19 +471,19 @@ class ConfessionApp {
       {
         opacity: 0,
         scale: 1.08,
-        duration: 0.9,
+        duration: 0.75,
         ease: 'power2.out'
       },
-      32
+      15
     );
     this.timeline.to(
       this.dom.acceptFlapOpened,
       {
         opacity: 1,
-        duration: 0.8,
+        duration: 0.7,
         ease: 'power2.out'
       },
-      32.4
+      15.3
     );
     // Tờ giấy thư trượt lên trên
     this.timeline.to(
@@ -377,16 +491,16 @@ class ConfessionApp {
       {
         y: 0,
         opacity: 1,
-        duration: 1.8,
+        duration: 1.5,
         ease: 'power3.out',
         onComplete: () => {
           this.dom.btnOpenFullAccept.classList.remove('hidden');
           this.dom.acceptEnvelopeCard.classList.add('interactive-active', 'cursor-pointer');
         }
       },
-      32.9
+      15.7
     );
-    this.timeline.to({}, { duration: 5.3 }, 34.7);
+    this.timeline.to({}, { duration: 2.8 }, 17.2);
   }
 
   /**
@@ -568,32 +682,13 @@ class ConfessionApp {
         .join('');
     }
 
-    // 5. Chuyển màu Bầu trời, Mặt trời & Đồi cỏ theo giai đoạn
-    if (mode === 'accept') {
-      if (stage.id === 1) {
-        // GĐ 1: Tím hồng chạng vạng đầy sao
-        this.setSkyOpacity(0, 1, 0, 0);
-        this.dom.sunburstRays.style.opacity = '0';
-        this.dom.sunGlowDome.style.opacity = '0.25';
-        this.dom.sunGlowDome.style.transform = 'translateX(-50%) translateY(90px)';
-        this.dom.hillMainFill.setAttribute('fill', '#5A5337');
-        this.dom.hillBottomShade.setAttribute('fill', '#464029');
-        this.dom.hillFlowersGroup.style.opacity = '0.15';
-      } else {
-        // GĐ 2, 3, 4: Mặt trời mọc cam hồng rực rỡ
-        this.setSkyOpacity(0, 0, 1, 0);
-        this.dom.sunburstRays.style.opacity = '1';
-        this.dom.sunGlowDome.style.opacity = '1';
-        this.dom.sunGlowDome.style.transform = 'translateX(-50%) translateY(0px)';
-        this.dom.hillMainFill.setAttribute('fill', '#738543');
-        this.dom.hillBottomShade.setAttribute('fill', '#5E6E34');
-        this.dom.hillFlowersGroup.style.opacity = '1';
-      }
-    } else {
+    // 5. Chuyển màu Bầu trời, Mặt trời & Đồi cỏ (Nhánh Đồng ý đã được GSAP nội suy mượt mà liên tục theo mặt trời mọc)
+    if (mode === 'reject') {
       // Nhánh Từ chối (GĐ 1 - 4): Bầu trời tím xanh hoàng hôn bình yên
-      this.setSkyOpacity(0, 0, 0, 1);
+      this.setSkyOpacity(0, 0, 0, 1, 0);
       this.dom.twilightClouds.style.opacity = '1';
       this.dom.sunburstRays.style.opacity = '0';
+      if (this.dom.risingSunOrb) this.dom.risingSunOrb.style.opacity = '0';
       this.dom.sunGlowDome.style.opacity = '0.45';
       this.dom.sunGlowDome.style.transform = 'translateX(-50%) translateY(45px)';
       this.dom.hillMainFill.setAttribute('fill', '#3D394C');
@@ -602,9 +697,12 @@ class ConfessionApp {
     }
   }
 
-  setSkyOpacity(sel, acc1, acc2, rej1) {
+  setSkyOpacity(sel, acc1, acc2, rej1, accDawn = 0) {
     this.dom.skySelection.style.opacity = String(sel);
     this.dom.skyAccept1.style.opacity = String(acc1);
+    if (this.dom.skyAcceptDawn) {
+      this.dom.skyAcceptDawn.style.opacity = String(accDawn);
+    }
     this.dom.skyAccept2.style.opacity = String(acc2);
     this.dom.skyReject1.style.opacity = String(rej1);
   }
