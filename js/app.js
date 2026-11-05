@@ -115,6 +115,9 @@ class ConfessionApp {
     this.dom.btnSkip.addEventListener('click', () => {
       if (this.timeline) {
         this.timeline.progress(1);
+        if (window.ChibiStage.currentPose) {
+          window.ChibiStage.renderPose(window.ChibiStage.currentPose, true);
+        }
       }
     });
 
@@ -171,6 +174,9 @@ class ConfessionApp {
         if (this.timeline && !isNaN(jumpTime) && jumpTime >= 0) {
           this.timeline.seek(jumpTime, false);
           this.timeline.pause();
+          if (window.ChibiStage.currentPose) {
+            window.ChibiStage.renderPose(window.ChibiStage.currentPose, true);
+          }
           if (params.get('modal') === '1') {
             this.openFullLetterModal(jumpMode, true);
           }
@@ -262,7 +268,7 @@ class ConfessionApp {
     const entryDur = instantEntry ? 0.05 : 1.05;
     this.setSkyOpacity(1, instantEntry ? 1 : 0, 0, 0, 0);
     gsap.set(this.dom.risingSunOrb, { xPercent: -50, y: 155, scale: 0.68, opacity: 0 });
-    gsap.set(this.dom.sunburstRays, { opacity: 0, scale: 0.72 });
+    gsap.set(this.dom.sunburstRays, { opacity: 0 });
 
     if (this.timeline) this.timeline.kill();
 
@@ -387,12 +393,11 @@ class ConfessionApp {
       4.9
     );
 
-    // 3. Tia nắng xoay nhẹ tỏa rộng dần khi mặt trời nhô qua đỉnh đồi
+    // 3. Tia nắng xoay nhẹ tỏa rộng dần khi mặt trời nhô qua đỉnh đồi (chỉ tween opacity để không xung đột với CSS @keyframes rotateSunRays)
     this.timeline.to(
       this.dom.sunburstRays,
       {
         opacity: 1,
-        scale: 1.05,
         duration: 7.8,
         ease: 'sine.inOut'
       },
@@ -731,23 +736,36 @@ class ConfessionApp {
    */
   applyStageEnvironment(mode, stage) {
     if (!stage || this.currentStageId === stage.id) return;
+    const isInitialStage = this.currentStageId === 0;
     this.currentStageId = stage.id;
 
-    // 1. Cập nhật tư thế cặp đôi Chibi
+    // 1. Cập nhật tư thế cặp đôi Chibi (Cross-fade mượt, không dựng lại DOM khi giữ nguyên tư thế)
     window.ChibiStage.renderPose(stage.pose);
 
-    // 2. Cập nhật hệ thống hạt Canvas 60fps
+    // 2. Cập nhật hệ thống hạt Canvas 60fps (Chuyển mượt không xóa hạt cũ đột ngột)
     this.particles.setPreset(stage.particlePreset);
 
-    // 3. Cập nhật Phụ đề ở đáy màn hình
+    // 3. Cập nhật Phụ đề ở đáy màn hình với hiệu ứng chuyển êm ái
     this.dom.subtitleText.textContent = stage.subtitle;
-    this.dom.subtitleText.style.opacity = '1';
+    if (!isInitialStage && typeof gsap !== 'undefined') {
+      gsap.fromTo(
+        this.dom.subtitleText,
+        { opacity: 0.25, y: 3 },
+        { opacity: 1, y: 0, duration: 0.42, ease: 'sine.out', overwrite: 'auto' }
+      );
+    } else {
+      this.dom.subtitleText.style.opacity = '1';
+    }
 
-    // 4. Cập nhật các mốc giây trên Thanh tiến trình đúng theo thiết kế từng giai đoạn
+    // 4. Chỉ cập nhật các mốc giây trên Thanh tiến trình khi thay đổi
     if (stage.ticks && this.dom.timelineTicksRow) {
-      this.dom.timelineTicksRow.innerHTML = stage.ticks
-        .map((t) => `<span>${t}</span>`)
-        .join('');
+      const ticksKey = stage.ticks.join('|');
+      if (this._lastTicksKey !== ticksKey) {
+        this._lastTicksKey = ticksKey;
+        this.dom.timelineTicksRow.innerHTML = stage.ticks
+          .map((t) => `<span>${t}</span>`)
+          .join('');
+      }
     }
 
     // 5. Chuyển màu Bầu trời, Mặt trời & Đồi cỏ (Nhánh Đồng ý đã được GSAP nội suy mượt mà liên tục theo mặt trời mọc)

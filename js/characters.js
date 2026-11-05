@@ -51,8 +51,8 @@ window.ChibiStage = {
     const isFirstRender = !this._initialized;
     this.ensureInitialized(container);
 
-    // Nếu pose không đổi (ví dụ GĐ 2 -> GĐ 3 -> GĐ 4 đều là 'happy-laugh'), giữ nguyên hoàn toàn để không bị giật
-    if (!isFirstRender && this.currentPose === poseName) {
+    // Nếu pose không đổi trong quá trình chạy bình thường (VD: GĐ 2 -> GĐ 3 -> GĐ 4 đều là 'happy-laugh'), giữ nguyên hoàn toàn
+    if (!isFirstRender && this.currentPose === poseName && !immediate) {
       return;
     }
 
@@ -64,15 +64,16 @@ window.ChibiStage = {
     Object.entries(this._poseLayers).forEach(([pose, layerEl]) => {
       if (!layerEl) return;
       const targetOpacity = pose === poseName ? 1 : 0;
+      if (typeof gsap !== 'undefined') {
+        gsap.killTweensOf(layerEl);
+      }
       if (shouldSetInstant) {
-        if (typeof gsap !== 'undefined') gsap.killTweensOf(layerEl);
         layerEl.style.opacity = String(targetOpacity);
       } else {
         gsap.to(layerEl, {
           opacity: targetOpacity,
-          duration: 0.55,
-          ease: 'sine.inOut',
-          overwrite: 'auto'
+          duration: 0.5,
+          ease: 'sine.inOut'
         });
       }
     });
