@@ -95,7 +95,7 @@ window.APP_CONFIG = {
       "hạnh phúc nhất của tớ..."
     ],
     fullLetter: {
-      salutation: 'Gửi cậu — cô gái từ hôm nay đã có thể gọi là "người thương",',
+      salutation: 'Gửi cậu - cô gái từ hôm nay đã có thể gọi là "người thương",',
       paragraphs: [
         'Lúc viết sẵn những dòng này và tạo ra mã QR đặt vào hộp quà, tớ đã hồi hộp không biết liệu bức thư này có cơ hội được mở ra hay không. Khoảnh khắc cậu chạm vào nút "Đồng ý", có lẽ là một trong những khoảnh khắc hạnh phúc nhất của tớ trong năm nay.',
         'Cảm ơn cậu vì đã xuất hiện, vì những buổi trò chuyện vui vẻ và vì đã cho tớ cơ hội được bước vào thế giới của cậu gần hơn một chút. Tớ không dám hứa những điều quá xa xôi hoa mỹ, nhưng tớ hứa sẽ luôn lắng nghe, luôn trân trọng và cùng cậu tạo nên thật nhiều kỷ niệm đẹp trong những ngày sắp tới.',
