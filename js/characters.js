@@ -32,7 +32,7 @@ window.ChibiStage = {
     const layersHtml = allPoses
       .map(
         (pose) =>
-          `<div class="chibi-pose-layer absolute inset-0 w-full h-full pointer-events-none" data-pose-layer="${pose}" style="opacity: 0; will-change: opacity;">${this.getPoseSVG(pose)}</div>`
+          `<div class="chibi-pose-layer absolute inset-0 w-full h-full pointer-events-none" data-pose-layer="${pose}" style="opacity: 0; visibility: hidden;">${this.getPoseSVG(pose)}</div>`
       )
       .join('');
 
@@ -63,18 +63,32 @@ window.ChibiStage = {
 
     Object.entries(this._poseLayers).forEach(([pose, layerEl]) => {
       if (!layerEl) return;
-      const targetOpacity = pose === poseName ? 1 : 0;
+      const isActive = pose === poseName;
+      const targetOpacity = isActive ? 1 : 0;
       if (typeof gsap !== 'undefined') {
         gsap.killTweensOf(layerEl);
       }
       if (shouldSetInstant) {
         layerEl.style.opacity = String(targetOpacity);
-      } else {
+        layerEl.style.visibility = isActive ? 'visible' : 'hidden';
+      } else if (isActive) {
+        layerEl.style.visibility = 'visible';
         gsap.to(layerEl, {
-          opacity: targetOpacity,
+          opacity: 1,
           duration: 0.5,
           ease: 'sine.inOut'
         });
+      } else if (parseFloat(layerEl.style.opacity || '0') > 0) {
+        gsap.to(layerEl, {
+          opacity: 0,
+          duration: 0.5,
+          ease: 'sine.inOut',
+          onComplete: () => {
+            layerEl.style.visibility = 'hidden';
+          }
+        });
+      } else {
+        layerEl.style.visibility = 'hidden';
       }
     });
   },
@@ -144,7 +158,7 @@ window.ChibiStage = {
       </g>
 
       <!-- ================= BẠN NAM (TRÁI) ================= -->
-      <g class="chibi-boy-group" filter="url(#chibi-shadow)">
+      <g class="chibi-boy-group">
         <!-- Bông hoa đỏ giấu sau lưng (nhô ra bên trái) -->
         <g class="flower-sway" transform="translate(82, 138)">
           <path d="M18 14 Q4 16 -4 6" stroke="#4D7831" stroke-width="3.2" stroke-linecap="round"/>
@@ -212,7 +226,7 @@ window.ChibiStage = {
       </g>
 
       <!-- ================= BẠN NỮ (PHẢI) ================= -->
-      <g class="chibi-girl-group" filter="url(#chibi-shadow)">
+      <g class="chibi-girl-group">
         <!-- Mái tóc dài phía sau lưng -->
         <path d="M168 82 C161 108 159 136 167 148 C176 154 228 154 237 146 C245 134 242 106 234 82 Z" fill="url(#girl-hair-grad)" stroke="#522D24" stroke-width="2.9" stroke-linejoin="round"/>
 
@@ -287,7 +301,7 @@ window.ChibiStage = {
       <ellipse cx="206" cy="192" rx="32" ry="7.5" fill="#2A2421" opacity="0.42"/>
 
       <!-- BẠN NAM NGƯỚC NHÌN BẦU TRỜI SAO -->
-      <g class="chibi-boy-group" filter="url(#chibi-shadow)">
+      <g class="chibi-boy-group">
         <path d="M104 156 L104 187 L114 187 L114 156 Z" fill="#3D4354" stroke="#522D24" stroke-width="2.8"/>
         <path d="M117 156 L117 187 L127 187 L127 156 Z" fill="#3D4354" stroke="#522D24" stroke-width="2.8"/>
         <ellipse cx="109" cy="189" rx="8" ry="4" fill="#5D3B30" stroke="#522D24" stroke-width="2.5"/>
@@ -314,7 +328,7 @@ window.ChibiStage = {
       </g>
 
       <!-- BẠN NỮ VÁY HỒNG NGƯỚC NHÌN BẦU TRỜI SAO -->
-      <g class="chibi-girl-group" filter="url(#chibi-shadow)">
+      <g class="chibi-girl-group">
         <!-- Tóc dài phía sau lưng (vẽ trước thân váy) -->
         <path d="M176 80 C170 108 173 136 182 146 C192 152 226 152 234 142 C240 128 236 102 230 80 Z" fill="url(#girl-hair-grad)" stroke="#522D24" stroke-width="2.8"/>
 
@@ -361,7 +375,7 @@ window.ChibiStage = {
       </g>
 
       <!-- BẠN NAM CƯỜI TÍT MẮT RẠNG RỠ -->
-      <g class="chibi-boy-group" filter="url(#chibi-shadow)">
+      <g class="chibi-boy-group">
         <path d="M104 156 L104 187 L114 187 L114 156 Z" fill="#3D4354" stroke="#522D24" stroke-width="2.8"/>
         <path d="M117 156 L117 187 L127 187 L127 156 Z" fill="#3D4354" stroke="#522D24" stroke-width="2.8"/>
         <ellipse cx="109" cy="189" rx="8.5" ry="4" fill="#5D3B30" stroke="#522D24" stroke-width="2.5"/>
@@ -388,7 +402,7 @@ window.ChibiStage = {
       </g>
 
       <!-- BẠN NỮ CƯỜI TÍT MẮT HẠNH PHÚC -->
-      <g class="chibi-girl-group" filter="url(#chibi-shadow)">
+      <g class="chibi-girl-group">
         <path d="M177 82 C170 110 172 138 182 148 C192 154 228 154 236 144 C243 130 239 104 233 82 Z" fill="url(#girl-hair-grad)" stroke="#522D24" stroke-width="2.8"/>
 
         <path d="M195 160 L194 187 L202 187 L203 160 Z" fill="#FAD4C0" stroke="#522D24" stroke-width="2.5"/>
@@ -428,7 +442,7 @@ window.ChibiStage = {
       <ellipse cx="232" cy="192" rx="30" ry="7" fill="#1E1B2B" opacity="0.45"/>
 
       <!-- BẠN NAM ĐỨNG BÊN TRÁI NHÌN DỊU DÀNG -->
-      <g class="chibi-boy-group" filter="url(#chibi-shadow)" transform="translate(-20, 0)">
+      <g class="chibi-boy-group" transform="translate(-20, 0)">
         <path d="M104 156 L104 187 L114 187 L114 156 Z" fill="#3D4354" stroke="#522D24" stroke-width="2.8"/>
         <path d="M117 156 L117 187 L127 187 L127 156 Z" fill="#3D4354" stroke="#522D24" stroke-width="2.8"/>
         <ellipse cx="109" cy="189" rx="8" ry="4" fill="#5D3B30" stroke="#522D24" stroke-width="2.5"/>
@@ -454,7 +468,7 @@ window.ChibiStage = {
       </g>
 
       <!-- BẠN NỮ ĐỨNG BÊN PHẢI NHÌN BÌNH YÊN -->
-      <g class="chibi-girl-group" filter="url(#chibi-shadow)" transform="translate(22, 0)">
+      <g class="chibi-girl-group" transform="translate(22, 0)">
         <!-- Tóc dài phía sau lưng (vẽ trước thân áo/váy) -->
         <path d="M176 80 C170 108 173 136 182 146 C192 152 226 152 234 142 C240 128 236 102 230 80 Z" fill="url(#girl-hair-grad)" stroke="#522D24" stroke-width="2.8"/>
 
@@ -491,7 +505,7 @@ window.ChibiStage = {
       <ellipse cx="214" cy="192" rx="31" ry="7" fill="#1E1B2B" opacity="0.45"/>
 
       <!-- BẠN NAM QUAY LƯNG NGẮM HOÀNG HÔN -->
-      <g class="chibi-boy-group" filter="url(#chibi-shadow)">
+      <g class="chibi-boy-group">
         <path d="M95 156 L95 187 L105 187 L105 156 Z" fill="#3D4354" stroke="#522D24" stroke-width="2.8"/>
         <path d="M108 156 L108 187 L118 187 L118 156 Z" fill="#3D4354" stroke="#522D24" stroke-width="2.8"/>
         <ellipse cx="100" cy="189" rx="8" ry="4" fill="#5D3B30" stroke="#522D24" stroke-width="2.5"/>
@@ -512,7 +526,7 @@ window.ChibiStage = {
       </g>
 
       <!-- BẠN NỮ QUAY LƯNG NGẮM HOÀNG HÔN -->
-      <g class="chibi-girl-group" filter="url(#chibi-shadow)">
+      <g class="chibi-girl-group">
         <path d="M202 158 L201 187 L209 187 L210 158 Z" fill="#FAD4C0" stroke="#522D24" stroke-width="2.5"/>
         <path d="M216 158 L217 187 L225 187 L224 158 Z" fill="#FAD4C0" stroke="#522D24" stroke-width="2.5"/>
         <ellipse cx="205" cy="189" rx="7.5" ry="3.8" fill="#6D4335" stroke="#522D24" stroke-width="2.4"/>
@@ -538,7 +552,7 @@ window.ChibiStage = {
       <ellipse cx="206" cy="192" rx="33" ry="7.5" fill="#1E1B2B" opacity="0.45"/>
 
       <!-- BẠN NAM ĐỨNG CHÍNH DIỆN MỈM CƯỜI BÌNH YÊN -->
-      <g class="chibi-boy-group" filter="url(#chibi-shadow)">
+      <g class="chibi-boy-group">
         <path d="M104 156 L102 187 L112 187 L114 156 Z" fill="#3D4354" stroke="#522D24" stroke-width="2.8"/>
         <path d="M117 156 L119 187 L129 187 L127 156 Z" fill="#3D4354" stroke="#522D24" stroke-width="2.8"/>
         <ellipse cx="107" cy="189" rx="8.5" ry="4" fill="#5D3B30" stroke="#522D24" stroke-width="2.5"/>
@@ -565,7 +579,7 @@ window.ChibiStage = {
       </g>
 
       <!-- BẠN NỮ ĐỨNG CHÍNH DIỆN MỈM CƯỜI BÌNH YÊN -->
-      <g class="chibi-girl-group" filter="url(#chibi-shadow)">
+      <g class="chibi-girl-group">
         <path d="M174 82 C168 110 170 138 180 148 C190 154 226 154 236 144 C243 130 239 104 233 82 Z" fill="url(#girl-hair-grad)" stroke="#522D24" stroke-width="2.8"/>
 
         <path d="M195 160 L194 187 L202 187 L203 160 Z" fill="#FAD4C0" stroke="#522D24" stroke-width="2.5"/>

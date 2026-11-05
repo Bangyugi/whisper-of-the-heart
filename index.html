@@ -65,19 +65,14 @@
           </svg>
         </div>
 
-        <!-- Cụm mây xếp lớp dưới chân trời (Horizon Layered Paper-Cut Clouds) -->
+        <!-- Cụm mây xếp lớp dưới chân trời (Horizon Layered Paper-Cut Clouds - Tối ưu bỏ feDropShadow nặng trên mobile) -->
         <svg id="horizon-clouds-svg" class="horizon-clouds-anim absolute bottom-[48px] left-0 w-full h-[270px]" viewBox="0 0 430 270" preserveAspectRatio="none" fill="none">
-          <defs>
-            <filter id="cloud-layer-shadow" x="-10%" y="-10%" width="120%" height="125%">
-              <feDropShadow dx="0" dy="-3" stdDeviation="4" flood-color="#8A4842" flood-opacity="0.12"/>
-            </filter>
-          </defs>
           <!-- Lớp mây trắng phía sau -->
-          <path filter="url(#cloud-layer-shadow)" d="M0 85 C35 82 58 106 62 132 C85 125 108 142 112 168 L0 168 Z" fill="#FFFDF9"/>
-          <path filter="url(#cloud-layer-shadow)" d="M430 92 C392 90 368 114 364 140 C340 132 318 148 314 174 L430 174 Z" fill="#FFFDF9"/>
+          <path d="M0 85 C35 82 58 106 62 132 C85 125 108 142 112 168 L0 168 Z" fill="#FFFDF9"/>
+          <path d="M430 92 C392 90 368 114 364 140 C340 132 318 148 314 174 L430 174 Z" fill="#FFFDF9"/>
           <!-- Lớp mây kem hồng ấm phía trước hai bên sườn đồi -->
-          <path filter="url(#cloud-layer-shadow)" d="M0 128 C38 128 62 154 60 182 C88 176 114 194 118 220 C138 214 156 226 162 246 L0 246 Z" fill="#FFE6D6"/>
-          <path filter="url(#cloud-layer-shadow)" d="M430 132 C390 132 366 158 368 186 C340 180 314 198 310 224 C290 218 272 230 266 250 L430 250 Z" fill="#FFE6D6"/>
+          <path d="M0 128 C38 128 62 154 60 182 C88 176 114 194 118 220 C138 214 156 226 162 246 L0 246 Z" fill="#FFE6D6"/>
+          <path d="M430 132 C390 132 366 158 368 186 C340 180 314 198 310 224 C290 218 272 230 266 250 L430 250 Z" fill="#FFE6D6"/>
           <!-- Lớp mây hồng đào sát chân đồi -->
           <path d="M0 176 C28 178 48 196 52 218 C78 212 102 226 108 250 L0 250 Z" fill="#FFC2BA" opacity="0.85"/>
           <path d="M430 174 C400 176 380 194 376 216 C350 210 326 224 320 248 L430 248 Z" fill="#FFC2BA" opacity="0.85"/>
@@ -363,14 +358,9 @@
             <!-- Khối Phong bì & Tờ thư tay (nghiêng nhẹ -9 độ chuẩn accept.png GĐ 3 & 4) -->
             <div id="accept-envelope-card" class="relative w-[248px] h-[270px] flex items-end justify-center" style="transform: rotate(-8deg);">
               <svg viewBox="0 0 260 290" class="w-full h-full overflow-visible" fill="none">
-                <defs>
-                  <filter id="env-drop-shadow" x="-15%" y="-15%" width="135%" height="135%">
-                    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#5A281E" flood-opacity="0.24"/>
-                  </filter>
-                </defs>
-
-                <!-- 1. Mặt lưng phong bì & Nắp mở lên trên (Hiện khi mở phong bì ở GĐ 4) -->
-                <g filter="url(#env-drop-shadow)">
+                <!-- 1. Mặt lưng phong bì & Nắp mở lên trên (Hiện khi mở phong bì ở GĐ 4, dùng bóng vector nhẹ thay cho feDropShadow) -->
+                <g>
+                  <rect x="22" y="145" width="220" height="132" rx="8" fill="#5A281E" opacity="0.18"/>
                   <rect x="20" y="138" width="220" height="132" rx="8" fill="#F6E0C1" stroke="#5A2E23" stroke-width="2.8"/>
                   <!-- Nắp phong bì khi đã lật mở lên (GĐ 4) -->
                   <path id="accept-flap-opened" d="M20 140 L130 68 L240 140 Z" fill="#F9E7CB" stroke="#5A2E23" stroke-width="2.8" stroke-linejoin="round" opacity="0"/>
@@ -474,7 +464,9 @@
           <!-- 3. Bức thư mở hoàn chỉnh ở Giai đoạn 4 (12s - 15s chuẩn reject.png GĐ 4) -->
           <div id="reject-letter-card" class="relative w-[256px] h-[270px] -mt-[85px] opacity-0 flex items-center justify-center" style="transform: rotate(-5deg);">
             <svg viewBox="0 0 260 280" class="w-full h-full overflow-visible" fill="none">
-              <g filter="url(#env-drop-shadow)">
+              <g>
+                <!-- Bóng đổ vector nhẹ phía sau -->
+                <path d="M20 118 L132 34 L244 118 L244 258 L20 258 Z" fill="#3B1D16" opacity="0.18"/>
                 <!-- Phong bì mở phía sau -->
                 <path d="M18 112 L130 28 L242 112 L242 252 L18 252 Z" fill="#F5E5D3" stroke="#522D24" stroke-width="2.7" stroke-linejoin="round"/>
                 <path d="M18 112 L95 182 L18 252 Z" fill="#EFE0CE" stroke="#522D24" stroke-width="2.4" stroke-linejoin="round"/>
@@ -510,26 +502,20 @@
       </div>
 
       <!-- ====================================================================
-           LAYER 5 (z-50): HUD, TIMELINE BAR & SUBTITLES
+           LAYER 5 (z-50): HUD & SUBTITLES
            ==================================================================== -->
       <div class="hud-overlay-layer">
-        <!-- Thanh Thời Gian (Timeline Progress Bar) ở đỉnh màn hình (Chuẩn accept.png & reject.png) -->
-        <header id="story-timeline-hud" class="absolute top-0 left-0 right-0 pt-3.5 px-5" style="opacity: 0;">
+        <!-- Thanh Thời Gian đã được ẩn hoàn toàn theo yêu cầu -->
+        <header id="story-timeline-hud" class="hidden" style="display: none !important;">
           <div class="timeline-bar-track">
             <div id="timeline-bar-fill" class="timeline-bar-fill"></div>
             <div id="timeline-bar-knob" class="timeline-bar-knob"></div>
           </div>
-          <!-- Các mốc giây bên dưới thanh tiến trình -->
-          <div id="timeline-ticks-row" class="flex justify-between items-center text-[11px] font-semibold text-white/95 mt-1.5 drop-shadow">
-            <span>00 giây</span>
-            <span>12 giây</span>
-            <span>25 giây</span>
-            <span>40 giây</span>
-          </div>
+          <div id="timeline-ticks-row"></div>
         </header>
 
-        <!-- Cụm nút điều khiển góc trên phải (Chỉ giữ lại nút Skip ✉ theo yêu cầu) -->
-        <div class="hud-interactive absolute top-12 right-4 flex items-center gap-2 z-50">
+        <!-- Cụm nút điều khiển góc trên phải (Chỉ giữ lại nút Skip ✉) -->
+        <div class="hud-interactive absolute top-4 right-4 flex items-center gap-2 z-50">
           <!-- Nút bật/tắt âm thanh (Đã ẩn theo yêu cầu) -->
           <button
             id="btn-mute-audio"
@@ -541,18 +527,14 @@
             <span id="mute-icon">🔊</span>
           </button>
 
-          <!-- Nút Skip ✉ (Chuẩn begining.png & mục 5.1 Tài liệu đặc tả: hiển thị với opacity 0.6, bấm gọi timeline.progress(1)) -->
+          <!-- Nút Skip ✉ (Đã ẩn theo yêu cầu) -->
           <button
             id="btn-skip-story"
             type="button"
-            class="skip-pill-btn hidden"
-            style="opacity: 0.6;"
+            class="hidden"
+            style="display: none !important;"
           >
             <span>Skip</span>
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="5" width="18" height="14" rx="2"/>
-              <path d="M3 7l9 6 9-6"/>
-            </svg>
           </button>
 
           <!-- Nút Xem lại từ đầu (Đã ẩn theo yêu cầu) -->

@@ -236,8 +236,7 @@ class ConfessionApp {
       });
     }
 
-    // Hiển thị thanh thời gian và phụ đề
-    this.dom.timelineHud.style.opacity = '1';
+    // Hiển thị phụ đề
     this.dom.subtitleContainer.style.opacity = '1';
 
     // Khởi chạy kịch bản GSAP Timeline tương ứng
@@ -445,16 +444,6 @@ class ConfessionApp {
       0
     );
 
-    // Hiện nút Skip ✉ ở giây 2.5 (opacity: 0.6)
-    this.timeline.call(
-      () => {
-        this.dom.btnSkip.classList.remove('hidden');
-        this.dom.btnSkip.style.opacity = '0.6';
-      },
-      null,
-      2.5
-    );
-
     // --- GIAI ĐOẠN 2 (05s – 11s): Mặt trời nhô lên sau đồi, cặp đôi cười tít mắt, hoa & tim bay ---
     this.timeline.call(
       () => {
@@ -632,15 +621,6 @@ class ConfessionApp {
       },
       3
     );
-    // Hiển thị nút Skip ✉ ở giây thứ 5
-    this.timeline.call(
-      () => {
-        this.dom.btnSkip.classList.remove('hidden');
-        this.dom.btnSkip.style.opacity = '0.6';
-      },
-      null,
-      5
-    );
     this.timeline.to(
       this.dom.rejectPaperPlane,
       {
@@ -757,18 +737,7 @@ class ConfessionApp {
       this.dom.subtitleText.style.opacity = '1';
     }
 
-    // 4. Chỉ cập nhật các mốc giây trên Thanh tiến trình khi thay đổi
-    if (stage.ticks && this.dom.timelineTicksRow) {
-      const ticksKey = stage.ticks.join('|');
-      if (this._lastTicksKey !== ticksKey) {
-        this._lastTicksKey = ticksKey;
-        this.dom.timelineTicksRow.innerHTML = stage.ticks
-          .map((t) => `<span>${t}</span>`)
-          .join('');
-      }
-    }
-
-    // 5. Chuyển màu Bầu trời, Mặt trời & Đồi cỏ (Nhánh Đồng ý đã được GSAP nội suy mượt mà liên tục theo mặt trời mọc)
+    // 4. Chuyển màu Bầu trời, Mặt trời & Đồi cỏ (Nhánh Đồng ý đã được GSAP nội suy mượt mà liên tục theo mặt trời mọc)
     if (mode === 'reject') {
       // Nhánh Từ chối (GĐ 1 - 4): Bầu trời tím xanh hoàng hôn bình yên
       this.setSkyOpacity(0, 0, 0, 1, 0);
@@ -794,10 +763,6 @@ class ConfessionApp {
   }
 
   updateTimelineBar(currentSec, totalSec, stages, mode) {
-    const pct = Math.max(0, Math.min(100, (currentSec / totalSec) * 100));
-    this.dom.timelineFill.style.width = `${pct}%`;
-    this.dom.timelineKnob.style.left = `${pct}%`;
-
     if (stages && mode) {
       let matched = stages[0];
       for (const st of stages) {

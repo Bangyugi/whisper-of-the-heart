@@ -173,47 +173,42 @@ body {
   will-change: transform, opacity;
 }
 
-/* Quả cầu Mặt Trời vàng ấm thực sự nhô dần lên từ sau đồi */
+/* Quả cầu Mặt Trời vàng ấm thực sự nhô dần lên từ sau đồi (Tối ưu dùng radial-gradient thuần không dùng box-shadow nặng trên mobile) */
 .rising-sun-orb {
   position: absolute;
   left: 50%;
-  bottom: 82px;
-  width: 156px;
-  height: 156px;
-  transform: translateX(-50%) translateY(150px) scale(0.75);
+  bottom: 35px;
+  width: 250px;
+  height: 250px;
+  transform: translate3d(-50%, 150px, 0) scale(0.75);
   border-radius: 50%;
   background: radial-gradient(
     circle,
     #ffffff 0%,
-    #fff9c8 45%,
-    #ffe082 78%,
+    #fff9c8 26%,
+    #ffe082 48%,
+    rgba(255, 224, 130, 0.55) 68%,
     rgba(255, 198, 105, 0) 100%
   );
-  box-shadow:
-    0 0 38px 14px rgba(255, 238, 162, 0.85),
-    0 0 85px 32px rgba(255, 195, 125, 0.55);
   will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
-/* Tia nắng xoay chậm ở GĐ 2-4 nhánh Đồng ý */
+/* Tia nắng xoay chậm ở GĐ 2-4 nhánh Đồng ý (Tối ưu SVG Data-URI tĩnh thay cho conic-gradient + mask-image nặng GPU di động) */
 .sunburst-rays {
   position: absolute;
   left: 50%;
-  bottom: -40px;
-  width: 580px;
-  height: 580px;
-  margin-left: -290px;
-  background: repeating-conic-gradient(
-    from 0deg,
-    rgba(255, 248, 208, 0.34) 0deg 8deg,
-    rgba(255, 248, 208, 0) 8deg 20deg
-  );
-  border-radius: 50%;
-  mask-image: radial-gradient(circle, rgba(0, 0, 0, 0.95) 15%, transparent 70%);
-  -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 0.95) 15%, transparent 70%);
+  bottom: -20px;
+  width: 520px;
+  height: 520px;
+  margin-left: -260px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cdefs%3E%3CradialGradient id='rg' cx='50%25' cy='50%25' r='50%25'%3E%3Cstop offset='15%25' stop-color='%23FFF8D0' stop-opacity='0.34'/%3E%3Cstop offset='72%25' stop-color='%23FFF8D0' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='url(%23rg)'%3E%3Cpolygon points='100,100 91,0 109,0'/%3E%3Cpolygon points='100,100 138,4 154,14'/%3E%3Cpolygon points='100,100 176,30 187,46'/%3E%3Cpolygon points='100,100 197,71 200,90'/%3E%3Cpolygon points='100,100 198,118 192,136'/%3E%3Cpolygon points='100,100 180,162 166,176'/%3E%3Cpolygon points='100,100 142,191 124,198'/%3E%3Cpolygon points='100,100 98,200 79,198'/%3E%3Cpolygon points='100,100 54,190 38,180'/%3E%3Cpolygon points='100,100 18,158 8,142'/%3E%3Cpolygon points='100,100 1,114 0,95'/%3E%3Cpolygon points='100,100 8,62 18,45'/%3E%3Cpolygon points='100,100 42,18 58,8'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
   animation: rotateSunRays 36s linear infinite;
   opacity: 0;
   will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 @keyframes rotateSunRays {
@@ -225,10 +220,11 @@ body {
   }
 }
 
-/* Mây cắt giấy xếp lớp (Paper-cut clouds) chuyển động sống động hơn */
+/* Mây cắt giấy xếp lớp (Paper-cut clouds) chuyển động mượt 60fps bằng translate3d thuần */
 .paper-cloud {
   position: absolute;
-  filter: drop-shadow(0 6px 8px rgba(105, 52, 48, 0.14));
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .cloud-drift-slow {
@@ -241,32 +237,34 @@ body {
 
 .horizon-clouds-anim {
   animation: horizonCloudsBreathe 4.2s ease-in-out infinite alternate;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 @keyframes cloudFloatX {
   0% {
-    transform: translateX(-10px) translateY(2px);
+    transform: translate3d(-10px, 2px, 0);
   }
   100% {
-    transform: translateX(14px) translateY(-5px);
+    transform: translate3d(14px, -5px, 0);
   }
 }
 
 @keyframes cloudFloatXReverse {
   0% {
-    transform: translateX(12px) translateY(2px);
+    transform: translate3d(12px, 2px, 0);
   }
   100% {
-    transform: translateX(-12px) translateY(-6px);
+    transform: translate3d(-12px, -6px, 0);
   }
 }
 
 @keyframes horizonCloudsBreathe {
   0% {
-    transform: translateY(0px) scaleX(1);
+    transform: translate3d(0, 0px, 0);
   }
   100% {
-    transform: translateY(-5px) scaleX(1.018);
+    transform: translate3d(0, -5px, 0);
   }
 }
 
@@ -280,25 +278,27 @@ body {
   pointer-events: none;
 }
 
-/* Cặp đôi Chibi nhún nhẹ theo nhịp nhạc */
+/* Cặp đôi Chibi nhún nhẹ theo nhịp nhạc (Dùng translate3d thuần không scaleY để tránh re-rasterize SVG trên điện thoại) */
 .chibi-couple-wrapper {
   position: absolute;
   left: 50%;
   bottom: 56px;
   width: 310px;
   height: 205px;
-  transform: translateX(-50%);
+  transform: translate3d(-50%, 0, 0);
   transform-origin: bottom center;
   animation: chibiIdleBob 3.2s ease-in-out infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 @keyframes chibiIdleBob {
   0%,
   100% {
-    transform: translateX(-50%) translateY(0px) scaleY(1);
+    transform: translate3d(-50%, 0px, 0);
   }
   50% {
-    transform: translateX(-50%) translateY(-3.5px) scaleY(1.012);
+    transform: translate3d(-50%, -3.5px, 0);
   }
 }
 
@@ -330,9 +330,9 @@ body {
   }
 }
 
-/* Màu sắc đồi cỏ được nội suy trực tiếp qua GSAP 60fps */
+/* Màu sắc đồi cỏ được nội suy qua GSAP */
 .hill-base-path {
-  will-change: contents;
+  backface-visibility: hidden;
 }
 
 /* ==========================================================================
@@ -361,19 +361,20 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* Hộp quà trung tâm đung đưa nhẹ */
+/* Hộp quà trung tâm đung đưa nhẹ (Dùng translate3d thuần không filter: drop-shadow để mượt 60fps trên mobile) */
 .gift-box-container {
-  filter: drop-shadow(0 10px 14px rgba(102, 52, 38, 0.18));
   animation: giftFloat 3.6s ease-in-out infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 @keyframes giftFloat {
   0%,
   100% {
-    transform: translateY(0px);
+    transform: translate3d(0, 0px, 0);
   }
   50% {
-    transform: translateY(-5px);
+    transform: translate3d(0, -5px, 0);
   }
 }
 
