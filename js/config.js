@@ -86,7 +86,7 @@ window.APP_CONFIG = {
       }
     ],
     letterPreview: [
-      "Gửi cậu — cô gái từ hôm",
+      "Gửi cậu - cô gái từ hôm",
       "nay đã có thể gọi là 'người",
       "thương'...",
       "Khoảnh khắc cậu chạm vào",
