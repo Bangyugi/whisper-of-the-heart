@@ -595,11 +595,13 @@
               </button>
             </div>
 
-            <!-- Nội dung bức thư cuộn mượt -->
-            <div class="overflow-y-auto pr-1 space-y-3.5 stage-letter-text text-[15.5px] leading-[1.75]">
-              <p id="modal-letter-salutation" class="font-bold text-[17px] text-[#5B261D]"></p>
-              <div id="modal-letter-body" class="space-y-3.5"></div>
-              <p id="modal-letter-signoff" class="text-right font-bold text-[#6E3529] pt-2 italic"></p>
+            <!-- Nội dung bức thư cuộn mượt đồng bộ cùng dòng kẻ giấy -->
+            <div class="letter-scroll-area overflow-y-auto pr-1">
+              <div class="letter-lined-content stage-letter-text text-[15.5px]">
+                <p id="modal-letter-salutation" class="font-bold text-[16.5px] text-[#5B261D]"></p>
+                <div id="modal-letter-body"></div>
+                <p id="modal-letter-signoff" class="text-right font-bold text-[#6E3529] italic"></p>
+              </div>
             </div>
 
             <!-- Footer nút đóng -->

@@ -10,15 +10,72 @@
  */
 
 window.ChibiStage = {
-  currentPose: 'shy-confess',
+  currentPose: null,
+  _initialized: false,
+  _poseLayers: {},
 
-  renderPose(poseName) {
-    this.currentPose = poseName;
+  ensureInitialized(container) {
+    if (this._initialized && container.querySelector('.chibi-pose-layer')) return;
+
+    const allPoses = [
+      'shy-confess',
+      'gaze-stars',
+      'happy-laugh',
+      'calm-look',
+      'back-sunset',
+      'friends-smile'
+    ];
+
+    const sharedDefsSvg = `<svg width="0" height="0" class="
+      absolute pointer-events-none opacity-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${this.sharedDefsMarkup()}</svg>`;
+
+    const layersHtml = allPoses
+      .map(
+        (pose) =>
+          `<div class="chibi-pose-layer absolute inset-0 w-full h-full pointer-events-none" data-pose-layer="${pose}" style="opacity: 0; will-change: opacity;">${this.getPoseSVG(pose)}</div>`
+      )
+      .join('');
+
+    container.innerHTML = sharedDefsSvg + layersHtml;
+    this._poseLayers = {};
+    allPoses.forEach((pose) => {
+      this._poseLayers[pose] = container.querySelector(`[data-pose-layer="${pose}"]`);
+    });
+    this._initialized = true;
+  },
+
+  renderPose(poseName, immediate = false) {
     const container = document.getElementById('chibi-couple-root');
     if (!container) return;
 
+    const isFirstRender = !this._initialized;
+    this.ensureInitialized(container);
+
+    // Nếu pose không đổi (ví dụ GĐ 2 -> GĐ 3 -> GĐ 4 đều là 'happy-laugh'), giữ nguyên hoàn toàn để không bị giật
+    if (!isFirstRender && this.currentPose === poseName) {
+      return;
+    }
+
+    this.currentPose = poseName;
     container.setAttribute('data-pose', poseName);
-    container.innerHTML = this.getPoseSVG(poseName);
+
+    const shouldSetInstant = immediate || isFirstRender || typeof gsap === 'undefined';
+
+    Object.entries(this._poseLayers).forEach(([pose, layerEl]) => {
+      if (!layerEl) return;
+      const targetOpacity = pose === poseName ? 1 : 0;
+      if (shouldSetInstant) {
+        if (typeof gsap !== 'undefined') gsap.killTweensOf(layerEl);
+        layerEl.style.opacity = String(targetOpacity);
+      } else {
+        gsap.to(layerEl, {
+          opacity: targetOpacity,
+          duration: 0.55,
+          ease: 'sine.inOut',
+          overwrite: 'auto'
+        });
+      }
+    });
   },
 
   getPoseSVG(pose) {
@@ -39,8 +96,8 @@ window.ChibiStage = {
     }
   },
 
-  // Common SVG Defs for Chibi shading & paper-cut drop shadow
-  commonDefs() {
+  // Shared SVG Defs mounted once for all poses
+  sharedDefsMarkup() {
     return `
       <defs>
         <filter id="chibi-shadow" x="-15%" y="-15%" width="130%" height="135%">
@@ -60,6 +117,10 @@ window.ChibiStage = {
         </linearGradient>
       </defs>
     `;
+  },
+
+  commonDefs() {
+    return '';
   },
 
   // 1. MÀN HÌNH 1: Nam giấu hoa sau lưng hồi hộp, Nữ hai tay áp má bất ngờ (begining.png)

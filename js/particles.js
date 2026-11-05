@@ -51,20 +51,45 @@ class ParticleEngine {
     }
   }
 
-  setPreset(presetName) {
+  setPreset(presetName, immediate = false) {
+    if (this.preset === presetName && this.particles.length > 0) return;
     this.preset = presetName;
-    this.particles = [];
 
-    let count = 18;
-    if (presetName === 'sakura-hearts') count = 28;
-    else if (presetName === 'sakura-magic') count = 26;
-    else if (presetName === 'sakura-gentle') count = 20;
-    else if (presetName === 'twilight-fireflies') count = 24;
-    else if (presetName.startsWith('reject') || presetName.includes('stars')) count = 18;
+    let targetCount = 18;
+    if (presetName === 'sakura-hearts') targetCount = 28;
+    else if (presetName === 'sakura-magic') targetCount = 26;
+    else if (presetName === 'sakura-gentle') targetCount = 20;
+    else if (presetName === 'twilight-fireflies') targetCount = 24;
+    else if (presetName.startsWith('reject') || presetName.includes('stars')) targetCount = 18;
 
-    for (let i = 0; i < count; i++) {
-      this.particles.push(this.createParticle(presetName, true));
+    // Khi mới khởi tạo lần đầu hoặc yêu cầu reset tức thì
+    if (immediate || this.particles.length === 0) {
+      this.particles = [];
+      for (let i = 0; i < targetCount; i++) {
+        this.particles.push(this.createParticle(presetName, true));
+      }
+      return;
     }
+
+    // Chuyển tiếp mượt mà: Giữ nguyên các hạt đang bay trên màn hình để không bị giật cục,
+    // đồng thời thêm mượt các hạt của giai đoạn mới với hiệu ứng fade-in êm ái
+    if (presetName === 'sakura-hearts') {
+      for (let i = 0; i < 10; i++) {
+        const np = this.createParticle(presetName, true);
+        np.alpha = 0.02;
+        np.fadeInTarget = 0.85;
+        this.particles.push(np);
+      }
+    }
+
+    while (this.particles.length < targetCount) {
+      const p = this.createParticle(presetName, false);
+      p.alpha = 0.02;
+      p.fadeInTarget = 0.78 + Math.random() * 0.22;
+      this.particles.push(p);
+    }
+
+    this.targetCount = targetCount;
   }
 
   createParticle(preset, initialRandomY = false) {
@@ -187,20 +212,26 @@ class ParticleEngine {
     }
 
     // 2. Cập nhật và vẽ các hạt theo ngữ cảnh
-    for (let i = 0; i < this.particles.length; i++) {
+    for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
       p.phase += 0.03 * dt;
       p.x += (p.vx + Math.sin(p.phase) * (p.swayAmp || 0.2)) * dt;
       p.y += p.vy * dt;
       if (p.rot !== undefined) p.rot += (p.vRot || 0.01) * dt;
 
-      // Tái tạo hạt khi bay ra khỏi khung hình
-      if (p.vy < 0 && p.y < -30) {
-        this.particles[i] = this.createParticle(this.preset, false);
-        continue;
+      if (p.fadeInTarget && p.alpha < p.fadeInTarget) {
+        p.alpha = Math.min(p.fadeInTarget, p.alpha + 0.018 * dt);
       }
-      if (p.vy > 0 && p.y > this.height * 0.86) {
-        this.particles[i] = this.createParticle(this.preset, false);
+
+      // Tái tạo hạt khi bay ra khỏi khung hình (hoặc thu gọn nếu vượt quá targetCount)
+      const outTop = p.vy < 0 && p.y < -30;
+      const outBottom = p.vy > 0 && p.y > this.height * 0.86;
+      if (outTop || outBottom) {
+        if (this.targetCount && this.particles.length > this.targetCount) {
+          this.particles.splice(i, 1);
+        } else {
+          this.particles[i] = this.createParticle(this.preset, false);
+        }
         continue;
       }
       if (p.x < -30) p.x = this.width + 20;
