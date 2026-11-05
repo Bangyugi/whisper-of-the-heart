@@ -487,19 +487,19 @@ class ConfessionApp {
       {
         opacity: 1,
         scale: 1,
-        rotation: -6,
+        rotation: -8,
         y: 0,
         duration: 1.15,
         ease: 'back.out(1.25)'
       },
       11.05
     );
-    // Phong bì bồng bềnh êm ái từ 12.2s -> 15.0s (không chồng lấn tween)
+    // Phong bì bồng bềnh êm ái từ 12.2s -> 15.0s (giữ độ nghiêng duyên dáng)
     this.timeline.to(
       this.dom.acceptEnvelopeCard,
       {
         y: -6,
-        rotation: -4,
+        rotation: -6,
         duration: 1.4,
         ease: 'sine.inOut'
       },
@@ -509,7 +509,7 @@ class ConfessionApp {
       this.dom.acceptEnvelopeCard,
       {
         y: 0,
-        rotation: -2,
+        rotation: -8,
         duration: 1.4,
         ease: 'sine.inOut'
       },
@@ -526,12 +526,12 @@ class ConfessionApp {
       15
     );
 
-    // Phong bì cân bằng nhẹ khi mở thư
+    // Phong bì giữ góc nghiêng -8 độ chuẩn thiết kế khi mở thư
     this.timeline.to(
       this.dom.acceptEnvelopeCard,
       {
-        rotation: 0,
-        y: 4,
+        rotation: -8,
+        y: 2,
         duration: 1.2,
         ease: 'sine.inOut'
       },
