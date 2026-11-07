@@ -101,7 +101,7 @@ window.APP_CONFIG = {
         'Cảm ơn cậu vì đã xuất hiện, vì những buổi trò chuyện vui vẻ và vì đã cho tớ cơ hội được bước vào thế giới của cậu gần hơn một chút. Tớ không dám hứa những điều quá xa xôi hoa mỹ, nhưng tớ hứa sẽ luôn lắng nghe, luôn trân trọng và cùng cậu tạo nên thật nhiều kỷ niệm đẹp trong những ngày sắp tới.',
         'Cảm ơn cậu vì hôm nay đã đi cùng tớ. Mình cùng nhau bắt đầu một hành trình mới thật vui nhé!'
       ],
-      signOff: 'Thương cậu thật nhiều ♥'
+      signOff: 'Yêu cậu thật nhiều ♥'
     }
   },
 
